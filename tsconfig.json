@@ -1,13 +1,16 @@
 {
     "compilerOptions": {
-        "outDir": "./dist-tsc/",
+        "outDir": "./dist/",
         "noImplicitAny": true,
         "module": "es6",
         "target": "es2020",
         "skipLibCheck": true,
         "jsx": "react",
         "allowJs": true,
-        "moduleResolution": "node"
+        "moduleResolution": "bundler",
+        "types": [
+          "node",
+        ],
     },
     "include": ["src/*"],
     "paths": {

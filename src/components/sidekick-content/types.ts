@@ -2,13 +2,13 @@ import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import { IntlShape } from 'react-intl';
 
 export interface LiveTranscriptionSidekickContentProps {
-  pluginApi: PluginApi;
+  pluginApi: NonNullable<PluginApi>;
   initialLocale: string;
   intl: IntlShape;
 }
 
 export interface CaptionHistoryProps {
-  pluginApi: PluginApi;
+  pluginApi: NonNullable<PluginApi>;
   locale: string;
   intl: IntlShape;
 }

@@ -28,7 +28,7 @@ const intlMessages = defineMessages({
 export function CaptionHistory(
   { pluginApi, locale, intl }: CaptionHistoryProps,
 ): ReactNode {
-  const { data: captions } = pluginApi.useCustomSubscription<CaptionGraphqlResult>(GET_CAPTIONS, {
+  const { data: captions } = pluginApi.useCustomSubscription!<CaptionGraphqlResult>(GET_CAPTIONS, {
     variables: {
       locale,
     },

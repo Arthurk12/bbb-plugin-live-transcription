@@ -1,8 +1,12 @@
-import * as React from 'react';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { createIntl, createIntlCache, defineMessages } from 'react-intl';
-import { BbbPluginSdk, GenericContentSidekickArea, pluginLogger } from 'bigbluebutton-html-plugin-sdk';
+import { GenericContentSidekickArea, pluginLogger } from 'bigbluebutton-html-plugin-sdk';
 import { GET_CAPTION_ACTIVE_LOCALES, GET_CAPTION_SETTINGS } from './queries';
 import { CaptionActiveLocaleGraphqlResponse, CaptionSettingsGraphqlResponse, LiveTranscriptionPluginProps } from './types';
 import { LiveTranscriptionSidekickContent } from '../sidekick-content/container';
@@ -30,16 +34,13 @@ const LOCALE_REQUEST_OBJECT = (!process.env.NODE_ENV || process.env.NODE_ENV ===
   } : undefined;
 
 export function LiveTranscriptionPlugin(
-  { pluginUuid: uuid }: LiveTranscriptionPluginProps,
+  { pluginApi, uuid }: LiveTranscriptionPluginProps,
 ): ReactNode {
-  BbbPluginSdk.initialize(uuid);
-  const pluginApi = BbbPluginSdk.getPluginApi(uuid);
-
   const {
     messages: localeMessages,
     currentLocale,
     loading: localeMessagesLoading,
-  } = pluginApi.useLocaleMessages(LOCALE_REQUEST_OBJECT);
+  } = pluginApi.useLocaleMessages!(LOCALE_REQUEST_OBJECT);
 
   const cache = createIntlCache();
   const intl = (!localeMessagesLoading && localeMessages) ? createIntl({
@@ -51,12 +52,12 @@ export function LiveTranscriptionPlugin(
   const [permissionToLoad, setPermissionToLoad] = useState(true);
   const sideKickPanelId = useRef('');
 
-  const { data: captionActiveLocalesResult } = pluginApi.useCustomSubscription<
+  const { data: captionActiveLocalesResult } = pluginApi.useCustomSubscription!<
   CaptionActiveLocaleGraphqlResponse>(
     GET_CAPTION_ACTIVE_LOCALES,
   );
 
-  const { data: captionSettings } = pluginApi.useCustomQuery<
+  const { data: captionSettings } = pluginApi.useCustomQuery!<
   CaptionSettingsGraphqlResponse>(
     GET_CAPTION_SETTINGS,
   );

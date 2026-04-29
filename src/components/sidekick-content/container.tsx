@@ -17,7 +17,7 @@ export function LiveTranscriptionSidekickContent(
   const {
     data: captionActiveLocalesResult,
     loading: captionActiveLocalesLoading,
-  } = pluginApi.useCustomSubscription<
+  } = pluginApi.useCustomSubscription!<
     CaptionActiveLocaleGraphqlResponse>(
       GET_CAPTION_ACTIVE_LOCALES,
     );

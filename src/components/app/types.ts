@@ -1,5 +1,8 @@
+import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
+
 export interface LiveTranscriptionPluginProps {
-  pluginUuid: string;
+  uuid: string;
+  pluginApi: NonNullable<PluginApi>;
 }
 
 export interface CaptionActiveLocaleGraphqlResponse {
