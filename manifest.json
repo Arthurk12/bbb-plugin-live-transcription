@@ -1,5 +1,5 @@
 {
-  "requiredSdkVersion": "~0.0.94",
+  "requiredSdkVersion": "~0.1.14",
   "name": "LiveTranscriptionPlugin",
   "version": "0.0.3",
   "javascriptEntrypointUrl": "LiveTranscriptionPlugin.js",
