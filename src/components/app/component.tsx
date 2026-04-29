@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { createIntl, createIntlCache, defineMessages } from 'react-intl';
 import { BbbPluginSdk, GenericContentSidekickArea, pluginLogger } from 'bigbluebutton-html-plugin-sdk';
 import { GET_CAPTION_ACTIVE_LOCALES, GET_CAPTION_SETTINGS } from './queries';
 import { CaptionActiveLocaleGraphqlResponse, CaptionSettingsGraphqlResponse, LiveTranscriptionPluginProps } from './types';
-import { LiveTranscriptionSidekickContent } from '../sidekick-content/component';
+import { LiveTranscriptionSidekickContent } from '../sidekick-content/container';
 
 const intlMessages = defineMessages({
   sidekickSectionName: {
@@ -16,7 +16,7 @@ const intlMessages = defineMessages({
   sidekickMenuTitle: {
     id: 'sidekick.panel.title',
     description: 'Title of the sidekick panel foreach live-transcription menu ',
-    defaultMessage: 'Live Transcription ({0})',
+    defaultMessage: 'Live Transcription',
   },
 });
 
@@ -27,7 +27,7 @@ const LOCALE_REQUEST_OBJECT = (!process.env.NODE_ENV || process.env.NODE_ENV ===
     headers: {
       'ngrok-skip-browser-warning': 'any',
     },
-  } : null;
+  } : undefined;
 
 export function LiveTranscriptionPlugin(
   { pluginUuid: uuid }: LiveTranscriptionPluginProps,
@@ -49,6 +49,7 @@ export function LiveTranscriptionPlugin(
   }, cache) : null;
 
   const [permissionToLoad, setPermissionToLoad] = useState(true);
+  const sideKickPanelId = useRef('');
 
   const { data: captionActiveLocalesResult } = pluginApi.useCustomSubscription<
   CaptionActiveLocaleGraphqlResponse>(
@@ -61,36 +62,28 @@ export function LiveTranscriptionPlugin(
   );
 
   useEffect(() => {
-    if (captionActiveLocalesResult && intl && permissionToLoad) {
-      const uniqueActiveLocales = new Set(
-        captionActiveLocalesResult.caption_activeLocales
-          .map((activeCaptionLocale) => activeCaptionLocale.locale)
-          .filter((locale) => locale !== ''),
-      );
-      const sidekickPanelsList = Array.from(uniqueActiveLocales)
-        .map(
-          (activeCaptionLocale) => new GenericContentSidekickArea({
-            id: `live-transcription-${activeCaptionLocale}-${uuid}`,
-            name: intl.formatMessage(intlMessages.sidekickMenuTitle, {
-              0: activeCaptionLocale,
-            }),
-            buttonIcon: 'closed_caption',
-            section: intl.formatMessage(intlMessages.sidekickSectionName),
-            open: false,
-            contentFunction: (element: HTMLElement) => {
-              const root = ReactDOM.createRoot(element);
-              root.render(
-                (<LiveTranscriptionSidekickContent
-                  captionLocale={activeCaptionLocale}
-                  pluginApi={pluginApi}
-                  intl={intl}
-                />),
-              );
-              return root;
-            },
-          }),
-        );
-      pluginApi.setGenericContentItems([...sidekickPanelsList]);
+    const areThereCaptionsToShow = captionActiveLocalesResult
+      && captionActiveLocalesResult.caption_activeLocales.length > 0;
+    if (intl && permissionToLoad && areThereCaptionsToShow && sideKickPanelId.current === '') {
+      const sidekickPanel = new GenericContentSidekickArea({
+        id: `live-transcription-${uuid}`,
+        name: intl.formatMessage(intlMessages.sidekickMenuTitle),
+        buttonIcon: 'closed_caption',
+        section: intl.formatMessage(intlMessages.sidekickSectionName),
+        open: false,
+        contentFunction: (element: HTMLElement) => {
+          const root = ReactDOM.createRoot(element);
+          root.render(
+            (<LiveTranscriptionSidekickContent
+              initialLocale={captionActiveLocalesResult.caption_activeLocales[0].locale}
+              pluginApi={pluginApi}
+              intl={intl}
+            />),
+          );
+          return root;
+        },
+      });
+      [sideKickPanelId.current] = pluginApi.setGenericContentItems([sidekickPanel]);
     }
   }, [captionActiveLocalesResult, intl, permissionToLoad]);
 

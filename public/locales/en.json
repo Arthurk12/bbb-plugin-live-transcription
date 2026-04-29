@@ -1,6 +1,6 @@
 {
   "sidekick.section.name": "Captions",
-  "sidekick.panel.title": "Live Transcription ({0})",
+  "sidekick.panel.title": "Live Transcription",
   "sidekick.panel.downloadButton.label": "Download",
   "sidekick.panel.scrollButton.label": "Scroll to latest",
   "sidekick.panel.avatar.alternativeText": "Avatar for user {0}"

@@ -1,6 +1,6 @@
 {
   "sidekick.section.name": "Untertitel",
-  "sidekick.panel.title": "Live-Transkription ({0})",
+  "sidekick.panel.title": "Live-Transkription",
   "sidekick.panel.downloadButton.label": "Herunterladen",
   "sidekick.panel.scrollButton.label": "Zum neuesten Beitrag scrollen",
   "sidekick.panel.avatar.alternativeText": "Avatar für Benutzer {0}"

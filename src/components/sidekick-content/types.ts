@@ -3,7 +3,13 @@ import { IntlShape } from 'react-intl';
 
 export interface LiveTranscriptionSidekickContentProps {
   pluginApi: PluginApi;
-  captionLocale: string;
+  initialLocale: string;
+  intl: IntlShape;
+}
+
+export interface CaptionHistoryProps {
+  pluginApi: PluginApi;
+  locale: string;
   intl: IntlShape;
 }
 

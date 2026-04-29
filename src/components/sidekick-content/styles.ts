@@ -141,3 +141,5 @@ export const ScrollAreaWrapper = styled.div`
   flex: 1;
   overflow: hidden;
 `;
+
+export const Select = styled.select``;
