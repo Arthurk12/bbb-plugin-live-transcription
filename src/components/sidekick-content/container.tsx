@@ -5,6 +5,7 @@ import { LiveTranscriptionSidekickContentProps } from './types';
 import { GET_CAPTION_ACTIVE_LOCALES } from '../app/queries';
 import { CaptionActiveLocaleGraphqlResponse } from '../app/types';
 import { CaptionHistory } from './component';
+import { getLocaleName } from '../../service';
 
 let lastSelectedLocale: string | null = null;
 
@@ -43,7 +44,7 @@ export function LiveTranscriptionSidekickContent(
                   key={activeLocale}
                   value={activeLocale}
                 >
-                  {activeLocale}
+                  {getLocaleName(activeLocale)}
                 </option>
               ))}
             </Styled.Select>
