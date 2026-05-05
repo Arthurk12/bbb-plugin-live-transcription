@@ -6,13 +6,20 @@ import { defineMessages } from 'react-intl';
 import * as Styled from './styles';
 import { CaptionGraphqlResult, LiveTranscriptionSidekickContentProps } from './types';
 import { GET_CAPTIONS } from './queries';
-import { FloatingCaptionsWindow, FloatingCaptionsFontSettings } from '../floating-captions/component';
+import { FloatingCaptionsWindow, FloatingCaptionsFontSettings, OutlineStyle } from '../floating-captions/component';
 
 const FONT_OPTIONS = [
   { label: 'Inter', value: 'Inter, sans-serif' },
   { label: 'Merriweather', value: 'Merriweather, serif' },
   { label: 'Roboto Mono', value: 'Roboto Mono, monospace' },
   { label: 'Nunito', value: 'Nunito, sans-serif' },
+];
+
+const OUTLINE_STYLE_OPTIONS: { label: string; value: OutlineStyle }[] = [
+  { label: 'None', value: 'none' },
+  { label: 'Outline', value: 'outline' },
+  { label: 'Shadow', value: 'shadow' },
+  { label: 'Glow', value: 'glow' },
 ];
 
 const intlMessages = defineMessages({
@@ -81,6 +88,21 @@ const intlMessages = defineMessages({
     description: 'Label for user name bold setting',
     defaultMessage: 'Name bold',
   },
+  outlineColorLabel: {
+    id: 'sidekick.panel.fontSettings.outlineColor',
+    description: 'Label for text outline color setting',
+    defaultMessage: 'Outline color',
+  },
+  outlineStyleLabel: {
+    id: 'sidekick.panel.fontSettings.outlineStyle',
+    description: 'Label for text outline style setting',
+    defaultMessage: 'Outline',
+  },
+  outlineSizeLabel: {
+    id: 'sidekick.panel.fontSettings.outlineSize',
+    description: 'Label for text outline size setting',
+    defaultMessage: 'Outline size',
+  },
 });
 
 const DEFAULT_FONT_SETTINGS: FloatingCaptionsFontSettings = {
@@ -91,6 +113,9 @@ const DEFAULT_FONT_SETTINGS: FloatingCaptionsFontSettings = {
   fontFamily: 'Inter, sans-serif',
   userNameColor: '#6366f1',
   userNameBold: true,
+  outlineColor: '#000000',
+  outlineStyle: 'none',
+  outlineSize: 2,
 };
 
 export function LiveTranscriptionSidekickContent(
@@ -254,6 +279,69 @@ export function LiveTranscriptionSidekickContent(
               }))}
             />
           </Styled.SettingsRow>
+
+          <Styled.SettingsDivider />
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.outlineStyleLabel)}
+            </Styled.SettingsLabel>
+            <Styled.FontFamilyOptions>
+              {OUTLINE_STYLE_OPTIONS.map((opt) => (
+                <Styled.OutlineStyleButton
+                  key={opt.value}
+                  type="button"
+                  active={fontSettings.outlineStyle === opt.value}
+                  onClick={() => setFontSettings((prev) => ({
+                    ...prev,
+                    outlineStyle: opt.value,
+                  }))}
+                >
+                  {opt.label}
+                </Styled.OutlineStyleButton>
+              ))}
+            </Styled.FontFamilyOptions>
+          </Styled.SettingsRow>
+
+          {fontSettings.outlineStyle !== 'none' && (
+            <>
+              <Styled.SettingsRow>
+                <Styled.SettingsLabel>
+                  {intl.formatMessage(intlMessages.outlineColorLabel)}
+                </Styled.SettingsLabel>
+                <input
+                  type="color"
+                  value={fontSettings.outlineColor}
+                  onChange={(e) => setFontSettings((prev) => ({
+                    ...prev,
+                    outlineColor: e.target.value,
+                  }))}
+                />
+              </Styled.SettingsRow>
+
+              <Styled.SettingsRow>
+                <Styled.SettingsLabel>
+                  {intl.formatMessage(intlMessages.outlineSizeLabel)}
+                </Styled.SettingsLabel>
+                <Styled.SettingsRangeWrapper>
+                  <input
+                    type="range"
+                    min={1}
+                    max={20}
+                    value={fontSettings.outlineSize}
+                    onChange={(e) => setFontSettings((prev) => ({
+                      ...prev,
+                      outlineSize: Number(e.target.value),
+                    }))}
+                  />
+                  <Styled.SettingsRangeValue>
+                    {fontSettings.outlineSize}
+                    px
+                  </Styled.SettingsRangeValue>
+                </Styled.SettingsRangeWrapper>
+              </Styled.SettingsRow>
+            </>
+          )}
 
           <Styled.SettingsDivider />
 
