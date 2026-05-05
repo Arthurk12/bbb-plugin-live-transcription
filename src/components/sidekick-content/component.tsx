@@ -6,6 +6,7 @@ import { defineMessages } from 'react-intl';
 import * as Styled from './styles';
 import { CaptionGraphqlResult, LiveTranscriptionSidekickContentProps } from './types';
 import { GET_CAPTIONS } from './queries';
+import { FloatingCaptionsWindow } from '../floating-captions/component';
 
 const intlMessages = defineMessages({
   downloadButtonLabel: {
@@ -23,6 +24,16 @@ const intlMessages = defineMessages({
     description: 'Alternative text for avatar image',
     defaultMessage: 'Avatar for user {0}',
   },
+  floatButtonOpen: {
+    id: 'sidekick.panel.floatButton.open',
+    description: 'Label for the floating captions button when window is closed',
+    defaultMessage: 'Float',
+  },
+  floatButtonClose: {
+    id: 'sidekick.panel.floatButton.close',
+    description: 'Label for the floating captions button when window is open',
+    defaultMessage: 'Close Float',
+  },
 });
 
 export function LiveTranscriptionSidekickContent(
@@ -38,6 +49,7 @@ export function LiveTranscriptionSidekickContent(
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [floatingOpen, setFloatingOpen] = useState(false);
 
   const scrollToBottom = () => {
     const container = containerRef.current;
@@ -84,14 +96,39 @@ export function LiveTranscriptionSidekickContent(
     URL.revokeObjectURL(url);
   };
 
+  const floatingCaptionEntries = (captions?.caption_history ?? []).map((c) => ({
+    captionId: c.captionId,
+    captionText: c.captionText,
+    userName: c.user.name,
+    userColor: c.user.color,
+    userAvatar: c.user.avatar,
+  }));
+
   const captionsLength = captions?.caption_history ? captions?.caption_history.length : 0;
+
   return (
     <Styled.Container>
+      {floatingOpen && (
+        <FloatingCaptionsWindow
+          captions={floatingCaptionEntries}
+          locale={locale}
+          onClose={() => setFloatingOpen(false)}
+        />
+      )}
       <Styled.Header>
         <Styled.HeaderTitle>{locale}</Styled.HeaderTitle>
         <Styled.DownloadButton type="button" onClick={downloadLiveTranscription}>
           {intl.formatMessage(intlMessages.downloadButtonLabel)}
         </Styled.DownloadButton>
+        <Styled.FloatButton
+          type="button"
+          active={floatingOpen}
+          onClick={() => setFloatingOpen((prev) => !prev)}
+        >
+          {floatingOpen
+            ? intl.formatMessage(intlMessages.floatButtonClose)
+            : intl.formatMessage(intlMessages.floatButtonOpen)}
+        </Styled.FloatButton>
       </Styled.Header>
       <Styled.ScrollAreaWrapper>
         <Styled.ScrollArea ref={containerRef} onScroll={handleScroll}>

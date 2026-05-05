@@ -130,6 +130,21 @@ export const DownloadButton = styled.button`
   }
 `;
 
+export const FloatButton = styled.button<{ active?: boolean }>`
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: ${({ active }) => (active ? '#6b7280' : '#6366f1')};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${({ active }) => (active ? '#4b5563' : '#4f46e5')};
+  }
+`;
+
 export const UserHeader = styled.div`
   display: flex;
   justify-content: space-between;
