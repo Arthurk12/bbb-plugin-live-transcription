@@ -3,6 +3,8 @@
   "sidekick.panel.buttonTitle": "Transcrição em Tempo Real",
   "sidekick.panel.clearButton.label": "Limpar",
   "sidekick.panel.copyButton.label": "Copiar",
+  "sidekick.panel.floatButton.open": "Abrir janela flutuante",
+  "sidekick.panel.floatButton.close": "Fechar janela flutuante",
   "sidekick.panel.scrollButton.label": "Rolar até o mais recente",
   "sidekick.panel.avatar.alternativeText": "Imagem avatar do usuário {0}",
   "sidekick.panel.username.presenterLabel": "Apresentador",

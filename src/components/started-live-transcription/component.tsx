@@ -6,6 +6,8 @@ import { IntlShape, defineMessages } from 'react-intl';
 import {
   History as MDHistoryIcon,
   ContentCopy as MDContentCopyIcon,
+  OpenInNew as MDOpenInNewIcon,
+  OpenInNewOff as MdOpenInNewOffIcon,
 } from '@mui/icons-material';
 import { BBBTypography, BBButton } from '@mconf/bbb-ui-components-react';
 import { PluginApi, pluginLogger } from 'bigbluebutton-html-plugin-sdk';
@@ -14,6 +16,7 @@ import { CaptionGraphqlResult } from '../types';
 import { GET_CAPTIONS, GET_CAPTIONS_SINCE } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
+import { FloatingCaptionsWindow } from '../floating-captions/component';
 
 interface LiveTranscriptionPanelProps {
   pluginApi: NonNullable<PluginApi>;
@@ -37,6 +40,16 @@ const intlMessages = defineMessages({
     description: 'Label for the button that copies the caption history to clipboard',
     defaultMessage: 'Copy',
   },
+  floatButtonOpen: {
+    id: 'sidekick.panel.floatButton.open',
+    description: 'Label for the floating captions button when window is closed',
+    defaultMessage: 'Float',
+  },
+  floatButtonClose: {
+    id: 'sidekick.panel.floatButton.close',
+    description: 'Label for the floating captions button when window is open',
+    defaultMessage: 'Close Float',
+  },
 });
 
 export function StartedLiveTranscription({
@@ -48,6 +61,7 @@ export function StartedLiveTranscription({
   const captionsTextRef = useRef('');
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [loadSince, setLoadSince] = useState<Date | undefined>(undefined);
+  const [floatingOpen, setFloatingOpen] = useState(false);
 
   const { data: captions } = pluginApi.useCustomSubscription!<CaptionGraphqlResult>(
     loadSince ? GET_CAPTIONS_SINCE : GET_CAPTIONS,
@@ -110,6 +124,13 @@ export function StartedLiveTranscription({
       nothingToShow,
     },
   });
+  const floatingCaptionEntries = (captions?.caption_history ?? []).map((c) => ({
+    captionId: c.captionId,
+    captionText: c.captionText,
+    userName: c.user.name,
+    userColor: c.user.color,
+    userAvatar: c.user.avatar,
+  }));
 
   if (nothingToShow) {
     return <EmptyState intl={intl} />;
@@ -117,6 +138,13 @@ export function StartedLiveTranscription({
 
   return (
     <Styled.Container>
+      {floatingOpen && (
+        <FloatingCaptionsWindow
+          captions={floatingCaptionEntries}
+          locale={locale}
+          onClose={() => setFloatingOpen(false)}
+        />
+      )}
       <Styled.HeaderToolbar>
         <Styled.HeaderToolbarGroup>
           <BBButton
@@ -134,6 +162,16 @@ export function StartedLiveTranscription({
             size="sm"
             variant="tertiary"
             onClick={handleCopyCaptions}
+          />
+          <BBButton
+            label={intl.formatMessage(floatingOpen
+              ? intlMessages.floatButtonClose : intlMessages.floatButtonOpen)}
+            iconStart={floatingOpen
+              ? <MdOpenInNewOffIcon style={{ fontSize: '0.85rem' }} />
+              : <MDOpenInNewIcon style={{ fontSize: '0.85rem' }} />}
+            size="sm"
+            variant="tertiary"
+            onClick={() => setFloatingOpen((prev) => !prev)}
           />
         </Styled.HeaderToolbarGroup>
       </Styled.HeaderToolbar>

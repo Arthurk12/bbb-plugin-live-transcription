@@ -3,6 +3,8 @@
   "sidekick.panel.buttonTitle": "Live Transcription",
   "sidekick.panel.clearButton.label": "Clear",
   "sidekick.panel.copyButton.label": "Copy",
+  "sidekick.panel.floatButton.open": "Open floating window",
+  "sidekick.panel.floatButton.close": "Close floating window",
   "sidekick.panel.scrollButton.label": "Scroll to latest",
   "sidekick.panel.avatar.alternativeText": "Avatar for user {0}",
   "sidekick.panel.username.presenterLabel": "Presenter",

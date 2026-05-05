@@ -3,6 +3,8 @@
   "sidekick.panel.buttonTitle": "Live-Transkription",
   "sidekick.panel.clearButton.label": "Löschen",
   "sidekick.panel.copyButton.label": "Kopieren",
+  "sidekick.panel.floatButton.open": "Schwebendes Fenster öffnen",
+  "sidekick.panel.floatButton.close": "Schwebendes Fenster schließen",
   "sidekick.panel.scrollButton.label": "Zum neuesten Beitrag scrollen",
   "sidekick.panel.avatar.alternativeText": "Avatar für Benutzer {0}",
   "sidekick.panel.username.presenterLabel": "Präsentator",

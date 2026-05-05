@@ -3,6 +3,8 @@
   "sidekick.panel.buttonTitle": "Trascrizione in Tempo Reale",
   "sidekick.panel.clearButton.label": "Cancella",
   "sidekick.panel.copyButton.label": "Copia",
+  "sidekick.panel.floatButton.open": "Apri finestra flottante",
+  "sidekick.panel.floatButton.close": "Chiudi finestra flottante",
   "sidekick.panel.scrollButton.label": "Scorri fino al più recente",
   "sidekick.panel.avatar.alternativeText": "Avatar per l'utente {0}",
   "sidekick.panel.username.presenterLabel": "Presentatore",
