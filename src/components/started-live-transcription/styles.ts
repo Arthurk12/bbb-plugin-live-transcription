@@ -164,3 +164,18 @@ export const FontFamilyButton = styled.button<{ active?: boolean; fontFamily: st
     background-color: ${({ active }) => (active ? '#4f46e5' : '#d1d5db')};
   }
 `;
+
+export const OutlineStyleButton = styled.button<{ active?: boolean }>`
+  padding: 4px 10px;
+  font-size: 13px;
+  background-color: ${({ active }) => (active ? '#6366f1' : '#e5e7eb')};
+  color: ${({ active }) => (active ? '#fff' : '#374151')};
+  border: 2px solid ${({ active }) => (active ? '#6366f1' : 'transparent')};
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: ${({ active }) => (active ? '#4f46e5' : '#d1d5db')};
+  }
+`;

@@ -10,6 +10,8 @@ export interface FloatingCaptionsEntry {
   userAvatar: string;
 }
 
+export type OutlineStyle = 'none' | 'outline' | 'shadow' | 'glow';
+
 export interface FloatingCaptionsFontSettings {
   fontSize: number;
   fontWeight: 'normal' | 'bold';
@@ -18,6 +20,9 @@ export interface FloatingCaptionsFontSettings {
   fontFamily: string;
   userNameColor: string;
   userNameBold: boolean;
+  outlineColor: string;
+  outlineStyle: OutlineStyle;
+  outlineSize: number;
 }
 
 interface FloatingCaptionsWindowProps {
@@ -27,6 +32,23 @@ interface FloatingCaptionsWindowProps {
   onClose: () => void;
 }
 
+function getOutlineCss(
+  outlineStyle: OutlineStyle,
+  outlineColor: string,
+  outlineSize: number,
+): React.CSSProperties {
+  switch (outlineStyle) {
+    case 'outline':
+      return { WebkitTextStroke: `${outlineSize}px ${outlineColor}` };
+    case 'shadow':
+      return { textShadow: `${outlineSize}px ${outlineSize}px ${outlineSize * 2}px ${outlineColor}` };
+    case 'glow':
+      return { textShadow: `0 0 ${outlineSize * 4}px ${outlineColor}, 0 0 ${outlineSize * 8}px ${outlineColor}` };
+    default:
+      return {};
+  }
+}
+
 function FloatingCaptionsContent(
   { captions, fontSettings }: {
     captions: FloatingCaptionsEntry[];
@@ -34,6 +56,12 @@ function FloatingCaptionsContent(
   },
 ): ReactNode {
   const lastTwo = captions.slice(-2);
+  const outlineCss = getOutlineCss(
+    fontSettings.outlineStyle,
+    fontSettings.outlineColor,
+    fontSettings.outlineSize,
+  );
+
   return (
     <div style={{
       fontFamily: fontSettings.fontFamily,
@@ -54,6 +82,7 @@ function FloatingCaptionsContent(
               marginRight: '6px',
               fontSize: `${fontSettings.fontSize}px`,
               fontFamily: fontSettings.fontFamily,
+              ...outlineCss,
             }}
             >
               {c.userName}
@@ -65,6 +94,7 @@ function FloatingCaptionsContent(
             fontSize: `${fontSettings.fontSize}px`,
             fontWeight: fontSettings.fontWeight,
             fontFamily: fontSettings.fontFamily,
+            ...outlineCss,
           }}
           >
             {c.captionText}
