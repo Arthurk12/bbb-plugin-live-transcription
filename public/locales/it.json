@@ -15,5 +15,14 @@
   "panel.content.description": "Attiva la trascrizione automatica per seguire tutto ciò che viene detto durante la sessione live direttamente nel portale. L'uso di questa funzione è soggetto alle leggi sulla privacy e sulla protezione dei dati, richiedendo il consenso dei partecipanti.",
   "panel.content.startButton": "Avvia Trascrizione",
   "panel.content.localeSelector.label": "Lingua",
-  "panel.content.startButton.tooltip": "Avviando, la trascrizione sarà abilitata per tutti i partecipanti con supporto a questa funzione."
+  "panel.content.startButton.tooltip": "Avviando, la trascrizione sarà abilitata per tutti i partecipanti con supporto a questa funzione.",
+  "sidekick.panel.fontSettings.tooltip": "Impostazioni",
+  "sidekick.panel.fontSettings.size": "Dimensione",
+  "sidekick.panel.fontSettings.weight": "Grassetto",
+  "sidekick.panel.fontSettings.color": "Colore",
+  "sidekick.panel.fontSettings.showUserName": "Mostra nome",
+  "sidekick.panel.fontSettings.fontFamily": "Carattere",
+  "sidekick.panel.fontSettings.userNameColor": "Colore nome",
+  "sidekick.panel.fontSettings.userNameBold": "Nome in grassetto"
+}
 }

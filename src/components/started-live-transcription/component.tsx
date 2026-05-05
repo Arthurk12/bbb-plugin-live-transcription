@@ -8,6 +8,7 @@ import {
   ContentCopy as MDContentCopyIcon,
   OpenInNew as MDOpenInNewIcon,
   OpenInNewOff as MdOpenInNewOffIcon,
+  SettingsApplications as MDSettingsIcon,
 } from '@mui/icons-material';
 import { BBBTypography, BBButton } from '@mconf/bbb-ui-components-react';
 import { PluginApi, pluginLogger } from 'bigbluebutton-html-plugin-sdk';
@@ -16,7 +17,24 @@ import { CaptionGraphqlResult } from '../types';
 import { GET_CAPTIONS, GET_CAPTIONS_SINCE } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
-import { FloatingCaptionsWindow } from '../floating-captions/component';
+import { FloatingCaptionsWindow, FloatingCaptionsFontSettings } from '../floating-captions/component';
+
+const FONT_OPTIONS = [
+  { label: 'Inter', value: 'Inter, sans-serif' },
+  { label: 'Merriweather', value: 'Merriweather, serif' },
+  { label: 'Roboto Mono', value: 'Roboto Mono, monospace' },
+  { label: 'Nunito', value: 'Nunito, sans-serif' },
+];
+
+const DEFAULT_FONT_SETTINGS: FloatingCaptionsFontSettings = {
+  fontSize: 15,
+  fontWeight: 'normal',
+  fontColor: '#000000',
+  showUserName: true,
+  fontFamily: 'Inter, sans-serif',
+  userNameColor: '#6366f1',
+  userNameBold: true,
+};
 
 interface LiveTranscriptionPanelProps {
   pluginApi: NonNullable<PluginApi>;
@@ -50,6 +68,46 @@ const intlMessages = defineMessages({
     description: 'Label for the floating captions button when window is open',
     defaultMessage: 'Close Float',
   },
+  fontSettingsLabel: {
+    id: 'sidekick.panel.fontSettings.tooltip',
+    description: 'Label for the caption style settings button',
+    defaultMessage: 'Settings',
+  },
+  fontSizeLabel: {
+    id: 'sidekick.panel.fontSettings.size',
+    description: 'Label for font size setting',
+    defaultMessage: 'Size',
+  },
+  fontWeightLabel: {
+    id: 'sidekick.panel.fontSettings.weight',
+    description: 'Label for font weight setting',
+    defaultMessage: 'Bold',
+  },
+  fontColorLabel: {
+    id: 'sidekick.panel.fontSettings.color',
+    description: 'Label for font color setting',
+    defaultMessage: 'Color',
+  },
+  showUserNameLabel: {
+    id: 'sidekick.panel.fontSettings.showUserName',
+    description: 'Label for show/hide user name setting',
+    defaultMessage: 'Show name',
+  },
+  fontFamilyLabel: {
+    id: 'sidekick.panel.fontSettings.fontFamily',
+    description: 'Label for font family setting',
+    defaultMessage: 'Font',
+  },
+  userNameColorLabel: {
+    id: 'sidekick.panel.fontSettings.userNameColor',
+    description: 'Label for user name color setting',
+    defaultMessage: 'Name color',
+  },
+  userNameBoldLabel: {
+    id: 'sidekick.panel.fontSettings.userNameBold',
+    description: 'Label for user name bold setting',
+    defaultMessage: 'Name bold',
+  },
 });
 
 export function StartedLiveTranscription({
@@ -62,6 +120,9 @@ export function StartedLiveTranscription({
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [loadSince, setLoadSince] = useState<Date | undefined>(undefined);
   const [floatingOpen, setFloatingOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [fontSettings, setFontSettings] = useState<
+    FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
 
   const { data: captions } = pluginApi.useCustomSubscription!<CaptionGraphqlResult>(
     loadSince ? GET_CAPTIONS_SINCE : GET_CAPTIONS,
@@ -142,6 +203,7 @@ export function StartedLiveTranscription({
         <FloatingCaptionsWindow
           captions={floatingCaptionEntries}
           locale={locale}
+          fontSettings={fontSettings}
           onClose={() => setFloatingOpen(false)}
         />
       )}
@@ -173,8 +235,144 @@ export function StartedLiveTranscription({
             variant="tertiary"
             onClick={() => setFloatingOpen((prev) => !prev)}
           />
+          <BBButton
+            label={intl.formatMessage(intlMessages.fontSettingsLabel)}
+            iconStart={<MDSettingsIcon style={{ fontSize: '0.85rem' }} />}
+            size="sm"
+            variant="tertiary"
+            onClick={() => setSettingsOpen((prev) => !prev)}
+          />
         </Styled.HeaderToolbarGroup>
       </Styled.HeaderToolbar>
+      {settingsOpen && (
+        <Styled.SettingsPanel>
+          <Styled.SettingsPanelTitle>
+            {intl.formatMessage(intlMessages.fontSettingsLabel)}
+          </Styled.SettingsPanelTitle>
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.fontSizeLabel)}
+            </Styled.SettingsLabel>
+            <Styled.SettingsRangeWrapper>
+              <input
+                type="range"
+                min={10}
+                max={120}
+                value={fontSettings.fontSize}
+                onChange={(e) => setFontSettings((prev) => ({
+                  ...prev,
+                  fontSize: Number(e.target.value),
+                }))}
+              />
+              <Styled.SettingsRangeValue>
+                {fontSettings.fontSize}
+                px
+              </Styled.SettingsRangeValue>
+            </Styled.SettingsRangeWrapper>
+          </Styled.SettingsRow>
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.fontColorLabel)}
+            </Styled.SettingsLabel>
+            <input
+              type="color"
+              value={fontSettings.fontColor}
+              onChange={(e) => setFontSettings((prev) => ({
+                ...prev,
+                fontColor: e.target.value,
+              }))}
+            />
+          </Styled.SettingsRow>
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.fontWeightLabel)}
+            </Styled.SettingsLabel>
+            <input
+              type="checkbox"
+              checked={fontSettings.fontWeight === 'bold'}
+              onChange={(e) => setFontSettings((prev) => ({
+                ...prev,
+                fontWeight: e.target.checked ? 'bold' : 'normal',
+              }))}
+            />
+          </Styled.SettingsRow>
+
+          <Styled.SettingsDivider />
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.showUserNameLabel)}
+            </Styled.SettingsLabel>
+            <input
+              type="checkbox"
+              checked={fontSettings.showUserName}
+              onChange={(e) => setFontSettings((prev) => ({
+                ...prev,
+                showUserName: e.target.checked,
+              }))}
+            />
+          </Styled.SettingsRow>
+
+          {fontSettings.showUserName && (
+            <>
+              <Styled.SettingsRow>
+                <Styled.SettingsLabel>
+                  {intl.formatMessage(intlMessages.userNameColorLabel)}
+                </Styled.SettingsLabel>
+                <input
+                  type="color"
+                  value={fontSettings.userNameColor}
+                  onChange={(e) => setFontSettings((prev) => ({
+                    ...prev,
+                    userNameColor: e.target.value,
+                  }))}
+                />
+              </Styled.SettingsRow>
+
+              <Styled.SettingsRow>
+                <Styled.SettingsLabel>
+                  {intl.formatMessage(intlMessages.userNameBoldLabel)}
+                </Styled.SettingsLabel>
+                <input
+                  type="checkbox"
+                  checked={fontSettings.userNameBold}
+                  onChange={(e) => setFontSettings((prev) => ({
+                    ...prev,
+                    userNameBold: e.target.checked,
+                  }))}
+                />
+              </Styled.SettingsRow>
+            </>
+          )}
+
+          <Styled.SettingsDivider />
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.fontFamilyLabel)}
+            </Styled.SettingsLabel>
+            <Styled.FontFamilyOptions>
+              {FONT_OPTIONS.map((font) => (
+                <Styled.FontFamilyButton
+                  key={font.value}
+                  type="button"
+                  fontFamily={font.value}
+                  active={fontSettings.fontFamily === font.value}
+                  onClick={() => setFontSettings((prev) => ({
+                    ...prev,
+                    fontFamily: font.value,
+                  }))}
+                >
+                  {font.label}
+                </Styled.FontFamilyButton>
+              ))}
+            </Styled.FontFamilyOptions>
+          </Styled.SettingsRow>
+        </Styled.SettingsPanel>
+      )}
       <Styled.ScrollAreaWrapper>
         <Styled.ScrollArea ref={containerRef} onScroll={handleScroll}>
           <Styled.ScrollAreaSpacer />

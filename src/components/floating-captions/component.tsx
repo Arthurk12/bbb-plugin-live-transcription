@@ -10,54 +10,65 @@ export interface FloatingCaptionsEntry {
   userAvatar: string;
 }
 
+export interface FloatingCaptionsFontSettings {
+  fontSize: number;
+  fontWeight: 'normal' | 'bold';
+  fontColor: string;
+  showUserName: boolean;
+  fontFamily: string;
+  userNameColor: string;
+  userNameBold: boolean;
+}
+
 interface FloatingCaptionsWindowProps {
   captions: FloatingCaptionsEntry[];
   locale: string;
+  fontSettings: FloatingCaptionsFontSettings;
   onClose: () => void;
 }
 
 function FloatingCaptionsContent(
-  { captions, locale }: { captions: FloatingCaptionsEntry[]; locale: string },
+  { captions, fontSettings }: {
+    captions: FloatingCaptionsEntry[];
+    fontSettings: FloatingCaptionsFontSettings;
+  },
 ): ReactNode {
   const lastTwo = captions.slice(-2);
   return (
     <div style={{
-      fontFamily: 'sans-serif',
+      fontFamily: fontSettings.fontFamily,
       padding: '12px 16px',
-      background: 'rgba(0,0,0,0.55)',
-      borderRadius: '10px',
-      maxWidth: '560px',
-      margin: '16px auto',
     }}
     >
-      <div style={{
-        fontSize: '11px',
-        color: 'rgba(255,255,255,0.5)',
-        marginBottom: '8px',
-        textTransform: 'uppercase',
-        letterSpacing: '0.08em',
-      }}
-      >
-        {locale}
-      </div>
       {lastTwo.length === 0 && (
-        <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px' }}>
+        <div style={{ color: 'rgba(0,0,0,0.4)', fontSize: `${fontSettings.fontSize}px` }}>
           No captions yet...
         </div>
       )}
       {lastTwo.map((c) => (
         <div key={c.captionId} style={{ marginBottom: '6px' }}>
+          {fontSettings.showUserName && (
+            <span style={{
+              fontWeight: fontSettings.userNameBold ? 'bold' : 'normal',
+              color: fontSettings.userNameColor,
+              marginRight: '6px',
+              fontSize: `${fontSettings.fontSize}px`,
+              fontFamily: fontSettings.fontFamily,
+            }}
+            >
+              {c.userName}
+              :
+            </span>
+          )}
           <span style={{
-            fontWeight: 'bold',
-            color: c.userColor || '#fff',
-            marginRight: '6px',
-            fontSize: '13px',
+            color: fontSettings.fontColor,
+            fontSize: `${fontSettings.fontSize}px`,
+            fontWeight: fontSettings.fontWeight,
+            fontFamily: fontSettings.fontFamily,
           }}
           >
-            {c.userName}
-            :
+            {c.captionText}
           </span>
-          <span style={{ color: '#fff', fontSize: '15px' }}>{c.captionText}</span>
         </div>
       ))}
     </div>
@@ -65,7 +76,7 @@ function FloatingCaptionsContent(
 }
 
 export function FloatingCaptionsWindow(
-  { captions, locale, onClose }: FloatingCaptionsWindowProps,
+  { captions, locale, fontSettings, onClose }: FloatingCaptionsWindowProps,
 ): ReactNode {
   const newWindowRef = useRef<Window | null>(null);
   const rootRef = useRef<ReactDOM.Root | null>(null);
@@ -90,6 +101,7 @@ export function FloatingCaptionsWindow(
 
     const style = win.document.createElement('style');
     style.textContent = `
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Merriweather:wght@400;700&family=Roboto+Mono:wght@400;700&family=Nunito:wght@400;700&display=swap');
       html, body {
         margin: 0;
         padding: 0;
@@ -104,7 +116,7 @@ export function FloatingCaptionsWindow(
 
     const root = ReactDOM.createRoot(container);
     rootRef.current = root;
-    root.render(<FloatingCaptionsContent captions={captions} locale={locale} />);
+    root.render(<FloatingCaptionsContent captions={captions} fontSettings={fontSettings} />);
 
     win.addEventListener('beforeunload', onClose);
     setReady(true);
@@ -118,10 +130,10 @@ export function FloatingCaptionsWindow(
   useEffect(() => {
     if (ready && rootRef.current) {
       rootRef.current.render(
-        <FloatingCaptionsContent captions={captions} locale={locale} />,
+        <FloatingCaptionsContent captions={captions} fontSettings={fontSettings} />,
       );
     }
-  }, [captions, ready]);
+  }, [captions, fontSettings, ready]);
 
   return null;
 }

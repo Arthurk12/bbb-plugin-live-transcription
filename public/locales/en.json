@@ -15,5 +15,14 @@
   "panel.content.description": "Enable automatic transcription to follow everything said during the live session directly in the portal. The use of this feature is subject to privacy and data protection laws, requiring participant consent.",
   "panel.content.startButton": "Start Transcription",
   "panel.content.localeSelector.label": "Language",
-  "panel.content.startButton.tooltip": "When starting, transcription will be enabled for all participants with support for this feature."
+  "panel.content.startButton.tooltip": "When starting, transcription will be enabled for all participants with support for this feature.",
+  "sidekick.panel.fontSettings.tooltip": "Settings",
+  "sidekick.panel.fontSettings.size": "Size",
+  "sidekick.panel.fontSettings.weight": "Bold",
+  "sidekick.panel.fontSettings.color": "Color",
+  "sidekick.panel.fontSettings.showUserName": "Show name",
+  "sidekick.panel.fontSettings.fontFamily": "Font",
+  "sidekick.panel.fontSettings.userNameColor": "Name color",
+  "sidekick.panel.fontSettings.userNameBold": "Name bold"
+}
 }

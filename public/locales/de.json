@@ -15,5 +15,14 @@
   "panel.content.description": "Aktivieren Sie die automatische Transkription, um alles zu verfolgen, was während der Live-Sitzung gesagt wird. Die Nutzung dieser Funktion unterliegt den Datenschutzgesetzen und erfordert die Zustimmung der Teilnehmer.",
   "panel.content.startButton": "Transkription starten",
   "panel.content.localeSelector.label": "Sprache",
-  "panel.content.startButton.tooltip": "Beim Starten wird die Transkription für alle Teilnehmer aktiviert, die diese Funktion unterstützen."
+  "panel.content.startButton.tooltip": "Beim Starten wird die Transkription für alle Teilnehmer aktiviert, die diese Funktion unterstützen.",
+  "sidekick.panel.fontSettings.tooltip": "Einstellungen",
+  "sidekick.panel.fontSettings.size": "Größe",
+  "sidekick.panel.fontSettings.weight": "Fett",
+  "sidekick.panel.fontSettings.color": "Farbe",
+  "sidekick.panel.fontSettings.showUserName": "Name anzeigen",
+  "sidekick.panel.fontSettings.fontFamily": "Schriftart",
+  "sidekick.panel.fontSettings.userNameColor": "Namensfarbe",
+  "sidekick.panel.fontSettings.userNameBold": "Name fett"
+}
 }
