@@ -52,7 +52,6 @@ export const CaptionRow = styled.div<CaptionRowProps>`
   ${({ hasMarginBottom: hasBottomMargin = true }) => hasBottomMargin && `
     margin-bottom: 1rem;
   `}
-  
 `;
 
 export const UserInfo = styled.div`
@@ -108,12 +107,14 @@ export const Header = styled.div`
   padding: 12px 16px;
   border-bottom: 1px solid #ccc;
   background-color: #f9f9f9;
+  gap: 6px;
 `;
 
 export const HeaderTitle = styled.h3`
   font-size: 16px;
   font-weight: normal;
   margin: 0;
+  flex: 1;
 `;
 
 export const DownloadButton = styled.button`
@@ -142,6 +143,93 @@ export const FloatButton = styled.button<{ active?: boolean }>`
 
   &:hover {
     background-color: ${({ active }) => (active ? '#4b5563' : '#4f46e5')};
+  }
+`;
+
+export const SettingsToggleButton = styled.button<{ active?: boolean }>`
+  padding: 6px 8px;
+  font-size: 14px;
+  background-color: ${({ active }) => (active ? '#d1d5db' : '#e5e7eb')};
+  color: #374151;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #d1d5db;
+  }
+`;
+
+export const SettingsPanel = styled.div`
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
+  background-color: #f3f4f6;
+  border-bottom: 1px solid #ccc;
+`;
+
+export const SettingsPanelTitle = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b7280;
+  letter-spacing: 0.06em;
+`;
+
+export const SettingsDivider = styled.hr`
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2px 0;
+`;
+
+export const SettingsRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+export const SettingsLabel = styled.label`
+  font-size: 13px;
+  color: #374151;
+  width: 80px;
+  flex-shrink: 0;
+`;
+
+export const SettingsRangeWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+`;
+
+export const SettingsRangeValue = styled.span`
+  font-size: 12px;
+  color: #6b7280;
+  width: 40px;
+`;
+
+export const FontFamilyOptions = styled.div`
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+`;
+
+export const FontFamilyButton = styled.button<{ active?: boolean; fontFamily: string }>`
+  padding: 4px 10px;
+  font-size: 13px;
+  font-family: ${({ fontFamily }) => fontFamily};
+  background-color: ${({ active }) => (active ? '#6366f1' : '#e5e7eb')};
+  color: ${({ active }) => (active ? '#fff' : '#374151')};
+  border: 2px solid ${({ active }) => (active ? '#6366f1' : 'transparent')};
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: ${({ active }) => (active ? '#4f46e5' : '#d1d5db')};
   }
 `;
 
