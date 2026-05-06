@@ -6,7 +6,7 @@
 
 ## Description
 
-https://github.com/user-attachments/assets/c1df2c62-9a9a-4827-ac07-f229c7130713
+![Demo](public/assets/demo.gif)
 
 This plugin provides a panel to the client where the live transcription is visible. Users joining via supported browsers (Google Chrome currently) can opt in to have their browser provide transcription as they speak.
 
