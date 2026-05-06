@@ -78,7 +78,9 @@ function SettingsProvider(props: SettingsProviderProps) {
 
     if (gpPlg?.settings && gpPlg.settings.debug !== undefined) {
       setDebug(gpPlg.settings.debug);
-      pluginLogger.level(gpPlg.settings.debug ? 'debug' : pluginLogger.level());
+      if (typeof pluginLogger.level === 'function') {
+        pluginLogger.level(gpPlg.settings.debug ? 'debug' : pluginLogger.level());
+      }
     } else {
       pluginLogger.warn('No debug setting found in plugin settings', { logCode: 'live_transcription_no_debug_setting' });
     }

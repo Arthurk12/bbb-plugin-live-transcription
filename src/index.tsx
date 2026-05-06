@@ -6,11 +6,6 @@ import { SettingsProvider } from './context/settings/context';
 
 export const LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME = 'LIVE_TRANSCRIPTION_CHANNEL';
 
-export const DEBUG = true;
-if (DEBUG && typeof pluginLogger.level === 'function') {
-  pluginLogger.level('debug');
-}
-
 const uuid = document.currentScript?.getAttribute('uuid') || 'root';
 const pluginRoot = document.getElementById(uuid);
 
