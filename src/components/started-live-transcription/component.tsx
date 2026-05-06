@@ -8,7 +8,7 @@ import {
   ContentCopy as MDContentCopyIcon,
   OpenInNew as MDOpenInNewIcon,
   OpenInNewOff as MdOpenInNewOffIcon,
-  SettingsApplications as MDSettingsIcon,
+  Settings as MDSettingsIcon,
 } from '@mui/icons-material';
 import { BBBTypography, BBButton } from '@mconf/bbb-ui-components-react';
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
