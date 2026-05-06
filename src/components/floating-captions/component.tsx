@@ -1,5 +1,10 @@
 import * as React from 'react';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import {
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import * as ReactDOM from 'react-dom/client';
 
 export interface FloatingCaptionsEntry {
@@ -55,7 +60,7 @@ function FloatingCaptionsContent(
     fontSettings: FloatingCaptionsFontSettings;
   },
 ): ReactNode {
-  const lastTwo = captions.slice(-2);
+  const lastTwo = captions.slice(0, 2);
   const outlineCss = getOutlineCss(
     fontSettings.outlineStyle,
     fontSettings.outlineColor,
@@ -106,7 +111,12 @@ function FloatingCaptionsContent(
 }
 
 export function FloatingCaptionsWindow(
-  { captions, locale, fontSettings, onClose }: FloatingCaptionsWindowProps,
+  {
+    captions,
+    locale,
+    fontSettings,
+    onClose,
+  }: FloatingCaptionsWindowProps,
 ): ReactNode {
   const newWindowRef = useRef<Window | null>(null);
   const rootRef = useRef<ReactDOM.Root | null>(null);
@@ -123,7 +133,7 @@ export function FloatingCaptionsWindow(
       // eslint-disable-next-line no-console
       console.warn('FloatingCaptionsWindow: could not open popup window. It may have been blocked.');
       onClose();
-      return;
+      return () => { };
     }
 
     newWindowRef.current = win;
