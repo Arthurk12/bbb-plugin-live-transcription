@@ -4,13 +4,14 @@ import React, {
 } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { createIntl, createIntlCache, defineMessages } from 'react-intl';
-import { GenericContentSidekickArea, pluginLogger } from 'bigbluebutton-html-plugin-sdk';
+import { GenericContentSidekickArea } from 'bigbluebutton-html-plugin-sdk';
 import { LiveTranscriptionPluginProps } from '../types';
 import { useLiveTranscriptionStore } from '../../context';
 import { SettingsProvider, useCaptionEnabled, useLiveTranscriptionDisabled } from '../../context/settings/context';
 import { LiveTranscriptionPanel } from '../live-transcription-panel/component';
 import { StartedLiveTranscription } from '../started-live-transcription/component';
 import useEnableTranscription from '../../hooks/useEnableTranscription';
+import { pluginLogger } from '../..';
 
 const intlMessages = defineMessages({
   sidekickSectionName: {

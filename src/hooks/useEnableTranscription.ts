@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { PluginApi, DataChannelTypes, pluginLogger } from 'bigbluebutton-html-plugin-sdk';
+import { PluginApi, DataChannelTypes } from 'bigbluebutton-html-plugin-sdk';
 import { SET_SPEECH_LOCALE } from '../components/queries';
 import { DataChannelResponse, SetSpeechLocaleMutation } from '../components/types';
-import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME } from '../index';
+import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../index';
 import { useLiveTranscriptionStore } from '../context';
 import { useSpeechProvider } from '../context/settings/context';
 import { hasSpeechRecognitionSupport } from './service';

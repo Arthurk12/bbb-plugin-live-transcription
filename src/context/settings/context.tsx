@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { pluginLogger } from 'bigbluebutton-html-plugin-sdk';
 import {
   ClientSettings,
   MeetingDisabledFeaturesResponse,
@@ -14,6 +13,7 @@ import {
   SettingsProviderProps,
 } from './types';
 import { GET_MEETING_DISABLED_FEATURES } from '../../components/queries';
+import { pluginLogger } from '../..';
 
 const SETTINGS_NAME = 'LiveTranscriptionPlugin';
 const DEFAULT_SPEECH_PROVIDER = 'webspeech';
@@ -79,7 +79,7 @@ function SettingsProvider(props: SettingsProviderProps) {
     if (gpPlg?.settings && gpPlg.settings.debug !== undefined) {
       setDebug(gpPlg.settings.debug);
       if (typeof pluginLogger.level === 'function') {
-        pluginLogger.level(gpPlg.settings.debug ? 'debug' : pluginLogger.level());
+        pluginLogger.level(gpPlg.settings.debug ? 'debug' : 'info');
       }
     } else {
       pluginLogger.warn('No debug setting found in plugin settings', { logCode: 'live_transcription_no_debug_setting' });

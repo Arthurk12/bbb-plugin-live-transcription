@@ -11,13 +11,14 @@ import {
   SettingsApplications as MDSettingsIcon,
 } from '@mui/icons-material';
 import { BBBTypography, BBButton } from '@mconf/bbb-ui-components-react';
-import { PluginApi, pluginLogger } from 'bigbluebutton-html-plugin-sdk';
+import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
 import { CaptionGraphqlResult } from '../types';
 import { GET_CAPTIONS, GET_CAPTIONS_SINCE } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
 import { FloatingCaptionsWindow, FloatingCaptionsFontSettings, OutlineStyle } from '../floating-captions/component';
+import { pluginLogger } from '../../index';
 
 const FONT_OPTIONS = [
   { label: 'Inter', value: 'Inter, sans-serif' },

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { BbbPluginSdk, pluginLogger, PluginApi } from 'bigbluebutton-html-plugin-sdk';
+import { BbbPluginSdk, pluginLogger as SdkLogger, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import { LiveTranscriptionPlugin } from './components/live-transcription-plugin/component';
 import { SettingsProvider } from './context/settings/context';
 
@@ -8,6 +8,10 @@ export const LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME = 'LIVE_TRANSCRIPTION_CHANNEL'
 
 const uuid = document.currentScript?.getAttribute('uuid') || 'root';
 const pluginRoot = document.getElementById(uuid);
+
+const { logger: pluginApiLogger } = BbbPluginSdk.getPluginApi(uuid);
+
+export const pluginLogger = pluginApiLogger || SdkLogger;
 
 if (!pluginRoot) {
   pluginLogger.error('Plugin root element not found', { logCode: 'live_transcription_root_not_found', extraInfo: { uuid } });

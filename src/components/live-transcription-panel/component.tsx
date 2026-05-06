@@ -7,14 +7,14 @@ import { IntlShape, defineMessages } from 'react-intl';
 import { MenuItem } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { BBBSelect, BBButton, BBBTypography } from '@mconf/bbb-ui-components-react';
-import { DataChannelTypes, PluginApi, pluginLogger } from 'bigbluebutton-html-plugin-sdk';
+import { DataChannelTypes, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
 import { DataChannelResponse } from '../types';
 import { StartedLiveTranscription } from '../started-live-transcription/component';
 import { getLocaleName } from '../../service';
 import { useLiveTranscriptionStore } from '../../context';
 import { useEnabledLocales, usePanelImageUrl } from '../../context/settings/context';
-import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME } from '../../index';
+import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../../index';
 
 function IllustrationSVG(props: React.SVGProps<SVGSVGElement>) {
   return (

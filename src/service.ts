@@ -1,4 +1,4 @@
-import { pluginLogger } from 'bigbluebutton-html-plugin-sdk';
+import { pluginLogger } from './index';
 
 export const getLocaleName = (locale: string) => {
   if (locale === '' || locale == null) {
