@@ -50,6 +50,24 @@ public:
 
 Lastly, make sure that `liveTranscription` is not on the `disabledFeatures` list of your meetings/server (For that, you can check `/etc/bigbluebutton/bbb-web.properties` or the custom parameters sent to the `/create` endpoint of your meeting).
 
+## Plugin Settings
+
+The following settings can be configured for this plugin in the BigBlueButton server configuration (e.g. `/etc/bigbluebutton/bbb-html5.yml`):
+
+```yml
+public:
+  plugins:
+    - name: LiveTranscriptionPlugin
+      settings:
+        debug: false
+        panelImageUrl: 'https://domain/illustration.svg'
+```
+
+| Setting         | Type    | Description                                                                 |
+|-----------------|---------|-----------------------------------------------------------------------------|
+| `debug`         | boolean | Enables debug-level logging for the plugin.                                 |
+| `panelImageUrl` | string  | URL of the illustration shown in the transcription panel before it starts.  |
+
 ## Building the Plugin
 
 To build the plugin for production use, follow these steps:

@@ -1,7 +1,17 @@
 {
   "sidekick.section.name": "Legendas",
-  "sidekick.panel.title": "Transcrição em tempo real",
-  "sidekick.panel.downloadButton.label": "Baixar",
+  "sidekick.panel.buttonTitle": "Transcrição em Tempo Real",
+  "sidekick.panel.clearButton.label": "Limpar",
+  "sidekick.panel.copyButton.label": "Copiar",
   "sidekick.panel.scrollButton.label": "Rolar até o mais recente",
-  "sidekick.panel.avatar.alternativeText": "Imagem avatar do usuário {0}"
+  "sidekick.panel.avatar.alternativeText": "Imagem avatar do usuário {0}",
+  "sidekick.panel.username.presenterLabel": "Apresentador",
+  "sidekick.panel.emptyState.title": "Nada para transcrever",
+  "sidekick.panel.emptyState.subtitle": "Aguardando fala dos participantes...",
+  "sidekick.panel.emptyState.iconAlt": "Ícone de fala para texto",
+  "panel.content.title": "Transcreva sua reunião em tempo real",
+  "panel.content.description": "Ative a transcrição automática para acompanhar tudo o que é dito durante a sessão ao vivo diretamente no portal. O uso deste recurso está sujeito às leis de privacidade e proteção de dados, sendo necessário o consentimento dos participantes.",
+  "panel.content.startButton": "Iniciar Transcrição",
+  "panel.content.localeSelector.label": "Idioma",
+  "panel.content.startButton.tooltip": "Ao iniciar, a transcrição será habilitada para todos os participantes com suporte a este recurso."
 }

@@ -1,7 +1,17 @@
 {
   "sidekick.section.name": "Untertitel",
-  "sidekick.panel.title": "Live-Transkription",
-  "sidekick.panel.downloadButton.label": "Herunterladen",
+  "sidekick.panel.buttonTitle": "Live-Transkription",
+  "sidekick.panel.clearButton.label": "Löschen",
+  "sidekick.panel.copyButton.label": "Kopieren",
   "sidekick.panel.scrollButton.label": "Zum neuesten Beitrag scrollen",
-  "sidekick.panel.avatar.alternativeText": "Avatar für Benutzer {0}"
+  "sidekick.panel.avatar.alternativeText": "Avatar für Benutzer {0}",
+  "sidekick.panel.username.presenterLabel": "Präsentator",
+  "sidekick.panel.emptyState.title": "Nichts zu transkribieren",
+  "sidekick.panel.emptyState.subtitle": "Warten auf Wortmeldungen der Teilnehmer...",
+  "sidekick.panel.emptyState.iconAlt": "Symbol für Sprache-zu-Text",
+  "panel.content.title": "Transkribieren Sie Ihr Meeting in Echtzeit",
+  "panel.content.description": "Aktivieren Sie die automatische Transkription, um alles zu verfolgen, was während der Live-Sitzung gesagt wird. Die Nutzung dieser Funktion unterliegt den Datenschutzgesetzen und erfordert die Zustimmung der Teilnehmer.",
+  "panel.content.startButton": "Transkription starten",
+  "panel.content.localeSelector.label": "Sprache",
+  "panel.content.startButton.tooltip": "Beim Starten wird die Transkription für alle Teilnehmer aktiviert, die diese Funktion unterstützen."
 }

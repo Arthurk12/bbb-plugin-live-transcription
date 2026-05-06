@@ -1,16 +1,21 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { BbbPluginSdk, pluginLogger, PluginApi } from 'bigbluebutton-html-plugin-sdk';
-import { LiveTranscriptionPlugin } from './components/app/component';
+import { LiveTranscriptionPlugin } from './components/live-transcription-plugin/component';
+import { SettingsProvider } from './context/settings/context';
 
-export const DEBUG = false;
-pluginLogger.level(DEBUG ? 'debug' : pluginLogger.level());
+export const LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME = 'LIVE_TRANSCRIPTION_CHANNEL';
+
+export const DEBUG = true;
+if (DEBUG && typeof pluginLogger.level === 'function') {
+  pluginLogger.level('debug');
+}
 
 const uuid = document.currentScript?.getAttribute('uuid') || 'root';
 const pluginRoot = document.getElementById(uuid);
 
 if (!pluginRoot) {
-  pluginLogger.error(`Plugin root element not found for uuid: ${uuid}`);
+  pluginLogger.error('Plugin root element not found', { logCode: 'live_transcription_root_not_found', extraInfo: { uuid } });
 }
 
 function PluginInitializer({ pluginUuid }:
@@ -18,15 +23,17 @@ function PluginInitializer({ pluginUuid }:
   BbbPluginSdk.initialize(pluginUuid);
   const pluginApi: PluginApi = BbbPluginSdk.getPluginApi(pluginUuid);
   if (!pluginApi) {
-    pluginLogger.error(`Plugin API not found for uuid: ${pluginUuid}`);
+    pluginLogger.error('Plugin API not found', { logCode: 'live_transcription_api_not_found', extraInfo: { pluginUuid } });
     return null;
   }
 
   return (
-    <LiveTranscriptionPlugin
-      pluginApi={pluginApi}
-      uuid={pluginUuid}
-    />
+    <SettingsProvider pluginApi={pluginApi}>
+      <LiveTranscriptionPlugin
+        pluginApi={pluginApi}
+        uuid={pluginUuid}
+      />
+    </SettingsProvider>
   );
 }
 

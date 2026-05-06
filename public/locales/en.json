@@ -1,7 +1,17 @@
 {
   "sidekick.section.name": "Captions",
-  "sidekick.panel.title": "Live Transcription",
-  "sidekick.panel.downloadButton.label": "Download",
+  "sidekick.panel.buttonTitle": "Live Transcription",
+  "sidekick.panel.clearButton.label": "Clear",
+  "sidekick.panel.copyButton.label": "Copy",
   "sidekick.panel.scrollButton.label": "Scroll to latest",
-  "sidekick.panel.avatar.alternativeText": "Avatar for user {0}"
+  "sidekick.panel.avatar.alternativeText": "Avatar for user {0}",
+  "sidekick.panel.username.presenterLabel": "Presenter",
+  "sidekick.panel.emptyState.title": "Nothing to transcribe",
+  "sidekick.panel.emptyState.subtitle": "Waiting for participants to speak...",
+  "sidekick.panel.emptyState.iconAlt": "Speech to text Icon",
+  "panel.content.title": "Transcribe your meeting in real time",
+  "panel.content.description": "Enable automatic transcription to follow everything said during the live session directly in the portal. The use of this feature is subject to privacy and data protection laws, requiring participant consent.",
+  "panel.content.startButton": "Start Transcription",
+  "panel.content.localeSelector.label": "Language",
+  "panel.content.startButton.tooltip": "When starting, transcription will be enabled for all participants with support for this feature."
 }

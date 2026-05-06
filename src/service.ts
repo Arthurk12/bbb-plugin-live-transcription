@@ -10,7 +10,7 @@ export const getLocaleName = (locale: string) => {
     });
     return languageNames.of(locale);
   } catch (e) {
-    pluginLogger.error('Error getting locale name for locale', locale, e);
+    pluginLogger.error('Error getting locale name', { logCode: 'live_transcription_locale_name_error', extraInfo: { locale, error: e } });
     return locale;
   }
 };

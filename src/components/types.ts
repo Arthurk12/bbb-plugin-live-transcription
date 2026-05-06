@@ -20,3 +20,31 @@ export interface CaptionSettingsGraphqlResponse {
     }
   }[]
 }
+
+export interface CaptionGraphqlResult {
+  caption_history: {
+    user: {
+      avatar: string;
+      color: string;
+      name: string;
+      presenter: boolean;
+    }
+    captionText: string;
+    captionId: string;
+    createdAt: string;
+  }[];
+}
+
+export interface UserAvatarInitialsProps {
+  background: string;
+}
+
+export interface SetSpeechLocaleMutation {
+  locale: string,
+  provider: string,
+}
+
+export interface DataChannelResponse {
+  state: string;
+  locale: string | undefined;
+}

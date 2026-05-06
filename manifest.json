@@ -3,5 +3,17 @@
   "name": "LiveTranscriptionPlugin",
   "version": "0.0.3",
   "javascriptEntrypointUrl": "LiveTranscriptionPlugin.js",
-  "localesBaseUrl": "locales"
+  "localesBaseUrl": "locales",
+  "dataChannels": [
+        {
+            "name": "LIVE_TRANSCRIPTION_CHANNEL",
+            "pushPermission": [
+                "moderator"
+            ],
+            "replaceOrDeletePermission": [
+                "creator",
+                "moderator"
+            ]
+        }
+  ]
 }
