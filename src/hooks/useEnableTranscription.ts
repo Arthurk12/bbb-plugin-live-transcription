@@ -29,7 +29,7 @@ const useEnableTranscription = (pluginApi: PluginApi, isMod: boolean) => {
   }, [result]);
 
   useEffect(() => {
-    if (!dataChannelLastItem) return;
+    if (!dataChannelLastItem || !dataChannelLastItem.data?.[0]) return;
     if (!setSpeechLocale) return;
 
     const { locale: dataChannelLocale } = dataChannelLastItem.data?.[0]?.payloadJson || {};
