@@ -66,7 +66,7 @@ export function LiveTranscriptionPlugin(
     if (!intl || !requiredFeaturesEnabled) return;
     let sidekickPanel: GenericContentSidekickArea | undefined;
     if (isMod) {
-      pluginLogger.debug('Initializing sidekick panel for moderators', { logCode: 'live_transcription_init_mod_panel', extraInfo: { uuid } });
+      pluginLogger.debug('Initializing sidekick panel for moderators', { logCode: 'live_transcription_init_mod_panel', extraInfo: { uuid, intl, activeLocale } });
       sidekickPanel = new GenericContentSidekickArea({
         id: `live-transcription-${uuid}`,
         name: intl.formatMessage(intlMessages.sidekickButtonTitle),
@@ -89,7 +89,7 @@ export function LiveTranscriptionPlugin(
       });
     }
     if (!isMod && transcriptionStarted) {
-      pluginLogger.debug('Initializing sidekick panel for viewers', { logCode: 'live_transcription_init_viewer_panel', extraInfo: { uuid } });
+      pluginLogger.debug('Initializing sidekick panel for viewers', { logCode: 'live_transcription_init_viewer_panel', extraInfo: { uuid, intl, activeLocale } });
       sidekickPanel = new GenericContentSidekickArea({
         id: `live-transcription-${uuid}`,
         name: intl.formatMessage(intlMessages.sidekickButtonTitle),
