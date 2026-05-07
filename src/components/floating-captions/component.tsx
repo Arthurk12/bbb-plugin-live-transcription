@@ -217,10 +217,17 @@ export function FloatingCaptionsWindow(
     );
 
     win.addEventListener('beforeunload', onClose);
+
+    const handleParentUnload = () => {
+      if (!win.closed) win.close();
+    };
+    window.addEventListener('pagehide', handleParentUnload);
+
     setReady(true);
 
     return () => {
       win.removeEventListener('beforeunload', onClose);
+      window.removeEventListener('pagehide', handleParentUnload);
       if (!win.closed) win.close();
     };
   }, []);
