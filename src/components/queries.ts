@@ -18,17 +18,6 @@ const CAPTION_HISTORY_FIELDS = `
   createdAt
 `;
 
-export const GET_CAPTIONS = `
-subscription getCaptions($locale: String!) {
-  caption_history(
-    where: { locale: { _eq: $locale } }
-    order_by: { createdAt: desc }
-  ) {
-    ${CAPTION_HISTORY_FIELDS}
-  }
-}
-`;
-
 export const GET_CAPTIONS_SINCE = `
 subscription getCaptionsSince($locale: String!, $since: timestamptz!) {
   caption_history(

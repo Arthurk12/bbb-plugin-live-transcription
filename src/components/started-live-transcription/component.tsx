@@ -15,11 +15,12 @@ import { BBBTypography, BBButton } from '@mconf/bbb-ui-components-react';
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
 import { CaptionGraphqlResult } from '../types';
-import { GET_CAPTIONS, GET_CAPTIONS_SINCE } from '../queries';
+import { GET_CAPTIONS_SINCE } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
 import { FloatingCaptionsWindow, FloatingCaptionsFontSettings, OutlineStyle } from '../floating-captions/component';
 import { pluginLogger } from '../../index';
+import { useLiveTranscriptionStore } from '../../context';
 
 const FONT_OPTIONS = [
   { label: 'Inter', value: 'Inter, sans-serif' },
@@ -149,7 +150,7 @@ export function StartedLiveTranscription({
   const rightGroupRef = useRef<HTMLDivElement>(null);
   const overflowMenuRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
-  const [loadSince, setLoadSince] = useState<Date | undefined>(undefined);
+  const { loadSince, setLoadSince } = useLiveTranscriptionStore((s) => s);
   const [floatingOpen, setFloatingOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isNarrow, setIsNarrow] = useState(false);
@@ -161,11 +162,11 @@ export function StartedLiveTranscription({
     data: captions,
     loading: captionsLoading,
   } = pluginApi.useCustomSubscription!<CaptionGraphqlResult>(
-    loadSince ? GET_CAPTIONS_SINCE : GET_CAPTIONS,
+    GET_CAPTIONS_SINCE,
     {
       variables: {
         locale,
-        ...(loadSince ? { since: loadSince.toISOString() } : {}),
+        since: loadSince,
       },
     },
   );
@@ -191,10 +192,10 @@ export function StartedLiveTranscription({
   }, []);
 
   const handleClearCaptions = useCallback(() => {
-    const timestamp = new Date();
+    const timestamp = new Date().toISOString();
     pluginLogger.info('Clearing captions history', { logCode: 'live_transcription_clear_history', extraInfo: { locale, timestamp } });
     setLoadSince(timestamp);
-  }, [locale]);
+  }, [locale, setLoadSince]);
 
   const handleCopyCaptions = useCallback(() => {
     pluginLogger.debug('Copying captions to clipboard', { logCode: 'live_transcription_copy_captions', extraInfo: { charCount: captionsTextRef.current.length } });
