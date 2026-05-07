@@ -60,7 +60,7 @@ function FloatingCaptionsContent(
     fontSettings: FloatingCaptionsFontSettings;
   },
 ): ReactNode {
-  const lastTwo = captions.slice(0, 2);
+  const lastTwo = captions.slice(0, 2).reverse();
   const outlineCss = getOutlineCss(
     fontSettings.outlineStyle,
     fontSettings.outlineColor,
