@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  ReactNode, useEffect, useRef, useState, useCallback,
+  ReactNode, useEffect, useLayoutEffect, useRef, useState, useCallback,
 } from 'react';
 import { IntlShape, defineMessages } from 'react-intl';
 import {
@@ -9,6 +9,7 @@ import {
   OpenInNew as MDOpenInNewIcon,
   OpenInNewOff as MdOpenInNewOffIcon,
   Settings as MDSettingsIcon,
+  MoreHoriz as MDMoreHorizIcon,
 } from '@mui/icons-material';
 import { BBBTypography, BBButton } from '@mconf/bbb-ui-components-react';
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
@@ -143,10 +144,16 @@ export function StartedLiveTranscription({
 }: LiveTranscriptionPanelProps): ReactNode {
   const containerRef = useRef<HTMLDivElement>(null);
   const captionsTextRef = useRef('');
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const leftGroupRef = useRef<HTMLDivElement>(null);
+  const rightGroupRef = useRef<HTMLDivElement>(null);
+  const overflowMenuRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [loadSince, setLoadSince] = useState<Date | undefined>(undefined);
   const [floatingOpen, setFloatingOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [isNarrow, setIsNarrow] = useState(false);
+  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
   const [fontSettings, setFontSettings] = useState<
     FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
 
@@ -202,6 +209,34 @@ export function StartedLiveTranscription({
 
   const nothingToShow = captions?.caption_history.length === 0;
 
+  useLayoutEffect(() => {
+    const toolbar = toolbarRef.current;
+    const observer = new ResizeObserver(([entry]) => {
+      const leftW = leftGroupRef.current?.offsetWidth ?? 0;
+      const rightW = rightGroupRef.current?.offsetWidth ?? 0;
+      setIsNarrow(entry.contentRect.width < leftW + rightW);
+    });
+    if (toolbar) {
+      observer.observe(toolbar);
+    }
+    return () => {
+      observer.disconnect();
+    };
+  }, [nothingToShow]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!overflowMenuOpen) return;
+      if (overflowMenuRef.current && !overflowMenuRef.current.contains(e.target as Node)) {
+        setOverflowMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [overflowMenuOpen]);
+
   pluginLogger.debug('Rendering captions panel', {
     logCode: 'live_transcription_render_captions',
     extraInfo: {
@@ -225,6 +260,7 @@ export function StartedLiveTranscription({
 
   return (
     <Styled.Container>
+
       {floatingOpen && (
         <FloatingCaptionsWindow
           captions={floatingCaptionEntries}
@@ -233,8 +269,8 @@ export function StartedLiveTranscription({
           onClose={() => setFloatingOpen(false)}
         />
       )}
-      <Styled.HeaderToolbar>
-        <Styled.HeaderToolbarGroup>
+      <Styled.HeaderToolbar ref={toolbarRef}>
+        <Styled.HeaderToolbarGroup ref={leftGroupRef}>
           <BBButton
             label={intl.formatMessage(intlMessages.clearButtonlabel)}
             iconStart={<MDHistoryIcon style={{ fontSize: '0.85rem' }} />}
@@ -242,8 +278,6 @@ export function StartedLiveTranscription({
             size="sm"
             variant="tertiary"
           />
-        </Styled.HeaderToolbarGroup>
-        <Styled.HeaderToolbarGroup>
           <BBButton
             label={intl.formatMessage(intlMessages.copyButtonLabel)}
             iconStart={<MDContentCopyIcon style={{ fontSize: '0.85rem' }} />}
@@ -251,6 +285,14 @@ export function StartedLiveTranscription({
             variant="tertiary"
             onClick={handleCopyCaptions}
           />
+        </Styled.HeaderToolbarGroup>
+        <Styled.HeaderToolbarGroup
+          ref={rightGroupRef}
+          aria-hidden={isNarrow || undefined}
+          style={isNarrow ? {
+            visibility: 'hidden', position: 'absolute', pointerEvents: 'none',
+          } : undefined}
+        >
           <BBButton
             label={intl.formatMessage(floatingOpen
               ? intlMessages.floatButtonClose : intlMessages.floatButtonOpen)}
@@ -269,6 +311,48 @@ export function StartedLiveTranscription({
             onClick={() => setSettingsOpen((prev) => !prev)}
           />
         </Styled.HeaderToolbarGroup>
+        {isNarrow && (
+          <Styled.OverflowMenuWrapper ref={overflowMenuRef}>
+            <BBButton
+              label=""
+              iconStart={<MDMoreHorizIcon style={{ fontSize: '0.85rem' }} />}
+              size="sm"
+              variant="tertiary"
+              onClick={() => setOverflowMenuOpen((prev) => !prev)}
+            />
+            {overflowMenuOpen && (
+              <Styled.OverflowDropdown>
+                <Styled.OverflowDropdownItem>
+                  <BBButton
+                    label={intl.formatMessage(floatingOpen
+                      ? intlMessages.floatButtonClose : intlMessages.floatButtonOpen)}
+                    iconStart={floatingOpen
+                      ? <MdOpenInNewOffIcon style={{ fontSize: '0.85rem' }} />
+                      : <MDOpenInNewIcon style={{ fontSize: '0.85rem' }} />}
+                    size="sm"
+                    variant="tertiary"
+                    onClick={() => {
+                      setFloatingOpen((prev) => !prev);
+                      setOverflowMenuOpen(false);
+                    }}
+                  />
+                </Styled.OverflowDropdownItem>
+                <Styled.OverflowDropdownItem>
+                  <BBButton
+                    label={intl.formatMessage(intlMessages.fontSettingsLabel)}
+                    iconStart={<MDSettingsIcon style={{ fontSize: '0.85rem' }} />}
+                    size="sm"
+                    variant="tertiary"
+                    onClick={() => {
+                      setSettingsOpen((prev) => !prev);
+                      setOverflowMenuOpen(false);
+                    }}
+                  />
+                </Styled.OverflowDropdownItem>
+              </Styled.OverflowDropdown>
+            )}
+          </Styled.OverflowMenuWrapper>
+        )}
       </Styled.HeaderToolbar>
       {settingsOpen && (
         <Styled.SettingsPanel>

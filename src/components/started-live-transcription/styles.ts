@@ -19,7 +19,6 @@ export const Container = styled.div`
   width: 100%;
   height: 100%;
   border-radius: 0.5rem;
-  overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
@@ -78,6 +77,38 @@ export const HeaderToolbar = styled.div`
   justify-content: space-between;
   border-bottom: 1px solid ${colorNeutral4};
   gap: ${space2};
+  overflow: visible;
+`;
+
+export const OverflowMenuWrapper = styled.div`
+  position: relative;
+  flex-shrink: 0;
+  overflow: visible;
+`;
+
+export const OverflowDropdown = styled.div`
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background-color: ${colorWhite};
+  border: 1px solid ${colorNeutral4};
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  min-width: 8rem;
+  padding: ${space2} 0;
+  gap: ${space2};
+`;
+
+export const OverflowDropdownItem = styled.div`
+  display: flex;
+  padding: 0 ${space2};
+
+  > * {
+    width: 100%;
+  }
 `;
 
 export const HeaderToolbarGroup = styled.div`
