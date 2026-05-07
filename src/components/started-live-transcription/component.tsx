@@ -157,7 +157,10 @@ export function StartedLiveTranscription({
   const [fontSettings, setFontSettings] = useState<
     FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
 
-  const { data: captions } = pluginApi.useCustomSubscription!<CaptionGraphqlResult>(
+  const {
+    data: captions,
+    loading: captionsLoading,
+  } = pluginApi.useCustomSubscription!<CaptionGraphqlResult>(
     loadSince ? GET_CAPTIONS_SINCE : GET_CAPTIONS,
     {
       variables: {
@@ -166,6 +169,18 @@ export function StartedLiveTranscription({
       },
     },
   );
+
+  useEffect(() => {
+    pluginLogger.debug('Captions subscription update', {
+      logCode: 'live_transcription_captions_update',
+      extraInfo: {
+        captions,
+        locale,
+        captionsLoading,
+        loadSince,
+      },
+    });
+  }, [captions, captionsLoading, locale, loadSince]);
 
   const scrollToBottom = useCallback(() => {
     const container = containerRef.current;
