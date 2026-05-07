@@ -23,5 +23,10 @@
   "sidekick.panel.fontSettings.showUserName": "Mostra nome",
   "sidekick.panel.fontSettings.fontFamily": "Carattere",
   "sidekick.panel.fontSettings.userNameColor": "Colore nome",
-  "sidekick.panel.fontSettings.userNameBold": "Nome in grassetto"
+  "sidekick.panel.fontSettings.userNameBold": "Nome in grassetto",
+  "sidekick.panel.fontSettings.outlineStyle": "Contorno",
+  "sidekick.panel.fontSettings.outlineColor": "Colore contorno",
+  "sidekick.panel.fontSettings.outlineSize": "Dimensione contorno",
+  "sidekick.panel.fontSettings.lineLimit": "Caratteri per riga",
+  "sidekick.panel.fontSettings.linesPerMessage": "Righe per didascalia"
 }

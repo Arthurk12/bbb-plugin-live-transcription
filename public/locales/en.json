@@ -23,5 +23,10 @@
   "sidekick.panel.fontSettings.showUserName": "Show name",
   "sidekick.panel.fontSettings.fontFamily": "Font",
   "sidekick.panel.fontSettings.userNameColor": "Name color",
-  "sidekick.panel.fontSettings.userNameBold": "Name bold"
+  "sidekick.panel.fontSettings.userNameBold": "Name bold",
+  "sidekick.panel.fontSettings.outlineStyle": "Outline",
+  "sidekick.panel.fontSettings.outlineColor": "Outline color",
+  "sidekick.panel.fontSettings.outlineSize": "Outline size",
+  "sidekick.panel.fontSettings.lineLimit": "Chars per line",
+  "sidekick.panel.fontSettings.linesPerMessage": "Lines per caption"
 }

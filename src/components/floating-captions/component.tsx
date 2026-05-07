@@ -30,11 +30,56 @@ export interface FloatingCaptionsFontSettings {
   outlineSize: number;
 }
 
+export interface FloatingCaptionsSplitSettings {
+  lineLimit: number;
+  linesPerMessage: number;
+}
+
 interface FloatingCaptionsWindowProps {
   captions: FloatingCaptionsEntry[];
   locale: string;
   fontSettings: FloatingCaptionsFontSettings;
+  splitSettings: FloatingCaptionsSplitSettings;
   onClose: () => void;
+}
+
+function splitCaption(
+  entry: FloatingCaptionsEntry,
+  lineLimit: number,
+  linesPerMessage: number,
+): FloatingCaptionsEntry[] {
+  const transcripts: string[] = [];
+  const words = entry.captionText.split(' ');
+
+  let currentLine = '';
+  let result = '';
+
+  for (const word of words) {
+    if ((currentLine + word).length <= lineLimit) {
+      currentLine += `${word} `;
+    } else {
+      result += `${currentLine.trim()}\n`;
+      currentLine = `${word} `;
+    }
+
+    if (result.split('\n').length > linesPerMessage) {
+      transcripts.push(result);
+      result = '';
+    }
+  }
+
+  if (result.length) {
+    transcripts.push(result);
+  }
+  transcripts.push(currentLine.trim());
+
+  return transcripts
+    .filter((t) => t.trim().length > 0)
+    .map((t, i) => ({
+      ...entry,
+      captionText: t,
+      captionId: `${entry.captionId}-${i + 1}`,
+    }));
 }
 
 function getOutlineCss(
@@ -55,12 +100,18 @@ function getOutlineCss(
 }
 
 function FloatingCaptionsContent(
-  { captions, fontSettings }: {
+  { captions, fontSettings, splitSettings }: {
     captions: FloatingCaptionsEntry[];
     fontSettings: FloatingCaptionsFontSettings;
+    splitSettings: FloatingCaptionsSplitSettings;
   },
 ): ReactNode {
-  const lastTwo = captions.slice(0, 2).reverse();
+  const lastTwo = captions
+    .slice(0, 2) // get first two
+    .reverse() // revert order before split
+    .flatMap((c) => splitCaption(c, splitSettings.lineLimit, splitSettings.linesPerMessage))
+    .slice(-2); // get the last two
+
   const outlineCss = getOutlineCss(
     fontSettings.outlineStyle,
     fontSettings.outlineColor,
@@ -115,6 +166,7 @@ export function FloatingCaptionsWindow(
     captions,
     locale,
     fontSettings,
+    splitSettings,
     onClose,
   }: FloatingCaptionsWindowProps,
 ): ReactNode {
@@ -156,7 +208,13 @@ export function FloatingCaptionsWindow(
 
     const root = ReactDOM.createRoot(container);
     rootRef.current = root;
-    root.render(<FloatingCaptionsContent captions={captions} fontSettings={fontSettings} />);
+    root.render(
+      <FloatingCaptionsContent
+        captions={captions}
+        fontSettings={fontSettings}
+        splitSettings={splitSettings}
+      />,
+    );
 
     win.addEventListener('beforeunload', onClose);
     setReady(true);
@@ -170,10 +228,14 @@ export function FloatingCaptionsWindow(
   useEffect(() => {
     if (ready && rootRef.current) {
       rootRef.current.render(
-        <FloatingCaptionsContent captions={captions} fontSettings={fontSettings} />,
+        <FloatingCaptionsContent
+          captions={captions}
+          fontSettings={fontSettings}
+          splitSettings={splitSettings}
+        />,
       );
     }
-  }, [captions, fontSettings, ready]);
+  }, [captions, fontSettings, splitSettings, ready]);
 
   return null;
 }
