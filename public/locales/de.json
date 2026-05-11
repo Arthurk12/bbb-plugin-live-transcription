@@ -23,5 +23,10 @@
   "sidekick.panel.fontSettings.showUserName": "Name anzeigen",
   "sidekick.panel.fontSettings.fontFamily": "Schriftart",
   "sidekick.panel.fontSettings.userNameColor": "Namensfarbe",
-  "sidekick.panel.fontSettings.userNameBold": "Name fett"
+  "sidekick.panel.fontSettings.userNameBold": "Name fett",
+  "sidekick.panel.fontSettings.outlineStyle": "Kontur",
+  "sidekick.panel.fontSettings.outlineColor": "Konturfarbe",
+  "sidekick.panel.fontSettings.outlineSize": "Konturgröße",
+  "sidekick.panel.fontSettings.lineLimit": "Zeichen pro Zeile",
+  "sidekick.panel.fontSettings.linesPerMessage": "Zeilen pro Untertitel"
 }

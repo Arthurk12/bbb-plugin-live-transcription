@@ -18,7 +18,12 @@ import { CaptionGraphqlResult } from '../types';
 import { GET_CAPTIONS_SINCE } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
-import { FloatingCaptionsWindow, FloatingCaptionsFontSettings, OutlineStyle } from '../floating-captions/component';
+import {
+  FloatingCaptionsWindow,
+  FloatingCaptionsFontSettings,
+  FloatingCaptionsSplitSettings,
+  OutlineStyle,
+} from '../floating-captions/component';
 import { pluginLogger } from '../../index';
 import { useLiveTranscriptionStore } from '../../context';
 
@@ -47,6 +52,11 @@ const DEFAULT_FONT_SETTINGS: FloatingCaptionsFontSettings = {
   outlineColor: '#000000',
   outlineStyle: 'none',
   outlineSize: 2,
+};
+
+const DEFAULT_SPLIT_SETTINGS: FloatingCaptionsSplitSettings = {
+  lineLimit: 60,
+  linesPerMessage: 2,
 };
 
 interface LiveTranscriptionPanelProps {
@@ -136,6 +146,16 @@ const intlMessages = defineMessages({
     description: 'Label for text outline size setting',
     defaultMessage: 'Outline size',
   },
+  lineLimitLabel: {
+    id: 'sidekick.panel.fontSettings.lineLimit',
+    description: 'Label for characters per line setting',
+    defaultMessage: 'Chars per line',
+  },
+  linesPerMessageLabel: {
+    id: 'sidekick.panel.fontSettings.linesPerMessage',
+    description: 'Label for lines per caption setting',
+    defaultMessage: 'Lines per caption',
+  },
 });
 
 export function StartedLiveTranscription({
@@ -157,6 +177,8 @@ export function StartedLiveTranscription({
   const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
   const [fontSettings, setFontSettings] = useState<
     FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
+  const [splitSettings, setSplitSettings] = useState<
+    FloatingCaptionsSplitSettings>(DEFAULT_SPLIT_SETTINGS);
 
   const {
     data: captions,
@@ -282,6 +304,7 @@ export function StartedLiveTranscription({
           captions={floatingCaptionEntries}
           locale={locale}
           fontSettings={fontSettings}
+          splitSettings={splitSettings}
           onClose={() => setFloatingOpen(false)}
         />
       )}
@@ -560,6 +583,51 @@ export function StartedLiveTranscription({
               ))}
             </Styled.FontFamilyOptions>
           </Styled.SettingsRow>
+
+          <Styled.SettingsDivider />
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.lineLimitLabel)}
+            </Styled.SettingsLabel>
+            <Styled.SettingsRangeWrapper>
+              <input
+                type="range"
+                min={20}
+                max={200}
+                value={splitSettings.lineLimit}
+                onChange={(e) => setSplitSettings((prev) => ({
+                  ...prev,
+                  lineLimit: Number(e.target.value),
+                }))}
+              />
+              <Styled.SettingsRangeValue>
+                {splitSettings.lineLimit}
+              </Styled.SettingsRangeValue>
+            </Styled.SettingsRangeWrapper>
+          </Styled.SettingsRow>
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.linesPerMessageLabel)}
+            </Styled.SettingsLabel>
+            <Styled.SettingsRangeWrapper>
+              <input
+                type="range"
+                min={1}
+                max={10}
+                value={splitSettings.linesPerMessage}
+                onChange={(e) => setSplitSettings((prev) => ({
+                  ...prev,
+                  linesPerMessage: Number(e.target.value),
+                }))}
+              />
+              <Styled.SettingsRangeValue>
+                {splitSettings.linesPerMessage}
+              </Styled.SettingsRangeValue>
+            </Styled.SettingsRangeWrapper>
+          </Styled.SettingsRow>
+
         </Styled.SettingsPanel>
       )}
       <Styled.ScrollAreaWrapper>

@@ -23,5 +23,10 @@
   "sidekick.panel.fontSettings.showUserName": "Mostrar nome",
   "sidekick.panel.fontSettings.fontFamily": "Fonte",
   "sidekick.panel.fontSettings.userNameColor": "Cor do nome",
-  "sidekick.panel.fontSettings.userNameBold": "Nome em negrito"
+  "sidekick.panel.fontSettings.userNameBold": "Nome em negrito",
+  "sidekick.panel.fontSettings.outlineStyle": "Contorno",
+  "sidekick.panel.fontSettings.outlineColor": "Cor do contorno",
+  "sidekick.panel.fontSettings.outlineSize": "Tamanho do contorno",
+  "sidekick.panel.fontSettings.lineLimit": "Caracteres por linha",
+  "sidekick.panel.fontSettings.linesPerMessage": "Linhas por legenda"
 }
