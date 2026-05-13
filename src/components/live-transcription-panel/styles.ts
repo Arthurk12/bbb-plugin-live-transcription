@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { space2, space4, space6 } from '../../styles-contants';
+import { space2, space4, space6, colorPrimary } from '../../styles-contants';
 
 export const Container = styled.div`
   display: flex;
@@ -27,4 +27,14 @@ export const Footer = styled.div`
   flex-direction: column;
   gap: ${space4};
   width: 100%;
+`;
+
+export const InlineLink = styled.a`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${colorPrimary};
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
 `;

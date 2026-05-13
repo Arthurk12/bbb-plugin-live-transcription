@@ -2,7 +2,9 @@ import { MeetingClientSettings } from 'bigbluebutton-html-plugin-sdk/dist/cjs/co
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 
 export interface Settings {
-  panelImageUrl?: string,
+  panelImageUrl?: string;
+  termsOfUseUrl?: string;
+  privacyPolicyUrl?: string;
   debug?: boolean,
 }
 
@@ -24,6 +26,8 @@ export interface ClientSettings extends MeetingClientSettings {
 export type SettingsContextType = {
   debug?: boolean;
   panelImageUrl?: string;
+  termsOfUseUrl?: string;
+  privacyPolicyUrl?: string;
   speechProvider: string;
   captionEnabled: boolean;
   enabledLocales: string[];

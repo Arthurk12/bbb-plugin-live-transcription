@@ -61,12 +61,16 @@ public:
       settings:
         debug: false
         panelImageUrl: 'https://domain/illustration.svg'
+        termsOfUseUrl: 'https://domain/terms'
+        privacyPolicyUrl: 'https://domain/privacy'
 ```
 
-| Setting         | Type    | Description                                                                 |
-|-----------------|---------|-----------------------------------------------------------------------------|
-| `debug`         | boolean | Enables debug-level logging for the plugin.                                 |
-| `panelImageUrl` | string  | URL of the illustration shown in the transcription panel before it starts.  |
+| Setting            | Type    | Description                                                                                          |
+|--------------------|---------|------------------------------------------------------------------------------------------------------|
+| `debug`            | boolean | Enables debug-level logging for the plugin.                                                          |
+| `panelImageUrl`    | string  | URL of the illustration shown in the transcription panel before it starts.                           |
+| `termsOfUseUrl`    | string  | URL linked on the "Terms of Use" text in the panel description. If not set, text is rendered as plain text. |
+| `privacyPolicyUrl` | string  | URL linked on the "Privacy Policy" text in the panel description. If not set, text is rendered as plain text. |
 
 ## Building the Plugin
 

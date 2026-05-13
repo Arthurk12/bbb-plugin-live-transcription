@@ -31,6 +31,8 @@ function SettingsProvider(props: SettingsProviderProps) {
   const { children, pluginApi } = props;
   const [debug, setDebug] = useState<boolean>(false);
   const [panelImageUrl, setPanelImageUrl] = useState<string | undefined>(undefined);
+  const [termsOfUseUrl, setTermsOfUseUrl] = useState<string | undefined>(undefined);
+  const [privacyPolicyUrl, setPrivacyPolicyUrl] = useState<string | undefined>(undefined);
   const [speechProvider, setSpeechProvider] = useState<string>(DEFAULT_SPEECH_PROVIDER);
   const [captionEnabled, setCaptionEnabled] = useState<boolean>(false);
   const [enabledLocales, setEnabledLocales] = useState<string[]>([]);
@@ -88,7 +90,19 @@ function SettingsProvider(props: SettingsProviderProps) {
     if (gpPlg?.settings && gpPlg.settings.panelImageUrl) {
       setPanelImageUrl(gpPlg.settings.panelImageUrl);
     } else {
-      pluginLogger.warn('No panel image URL found in plugin settings, using default one', { logCode: 'live_transcription_no_panel_image_url' });
+      pluginLogger.info('No panel image URL found in plugin settings, using default one', { logCode: 'live_transcription_no_panel_image_url' });
+    }
+
+    if (gpPlg?.settings && gpPlg.settings.termsOfUseUrl) {
+      setTermsOfUseUrl(gpPlg.settings.termsOfUseUrl);
+    } else {
+      pluginLogger.warn('No terms of use URL found in plugin settings', { logCode: 'live_transcription_no_terms_of_use_url' });
+    }
+
+    if (gpPlg?.settings && gpPlg.settings.privacyPolicyUrl) {
+      setPrivacyPolicyUrl(gpPlg.settings.privacyPolicyUrl);
+    } else {
+      pluginLogger.warn('No privacy policy URL found in plugin settings', { logCode: 'live_transcription_no_privacy_policy_url' });
     }
   }, []);
 
@@ -101,12 +115,15 @@ function SettingsProvider(props: SettingsProviderProps) {
   const contextValue = useMemo(() => ({
     debug,
     panelImageUrl,
+    termsOfUseUrl,
+    privacyPolicyUrl,
     speechProvider,
     captionEnabled,
     enabledLocales,
     liveTranscriptionDisabled,
   }), [
-    debug, panelImageUrl, speechProvider, captionEnabled, enabledLocales, liveTranscriptionDisabled,
+    debug, panelImageUrl, termsOfUseUrl, privacyPolicyUrl,
+    speechProvider, captionEnabled, enabledLocales, liveTranscriptionDisabled,
   ]);
 
   return (
@@ -176,10 +193,32 @@ function useLiveTranscriptionDisabled() {
   return context.liveTranscriptionDisabled;
 }
 
+function useTermsOfUseUrl() {
+  const context = useContext(SettingsContext);
+
+  if (!context) {
+    throw new Error('useTermsOfUseUrl must be used within a SettingsProvider');
+  }
+
+  return context.termsOfUseUrl;
+}
+
+function usePrivacyPolicyUrl() {
+  const context = useContext(SettingsContext);
+
+  if (!context) {
+    throw new Error('usePrivacyPolicyUrl must be used within a SettingsProvider');
+  }
+
+  return context.privacyPolicyUrl;
+}
+
 export {
   SettingsProvider,
   useDebug,
   usePanelImageUrl,
+  useTermsOfUseUrl,
+  usePrivacyPolicyUrl,
   useSpeechProvider,
   useCaptionEnabled,
   useEnabledLocales,

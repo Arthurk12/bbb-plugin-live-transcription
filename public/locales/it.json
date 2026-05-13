@@ -12,7 +12,7 @@
   "sidekick.panel.emptyState.subtitle": "In attesa che i partecipanti parlino...",
   "sidekick.panel.emptyState.iconAlt": "Icona da voce a testo",
   "panel.content.title": "Trascrivi la tua riunione in tempo reale",
-  "panel.content.description": "Attiva la trascrizione automatica per seguire tutto ciò che viene detto durante la sessione live direttamente nel portale. L'uso di questa funzione è soggetto alle leggi sulla privacy e sulla protezione dei dati, richiedendo il consenso dei partecipanti.",
+  "panel.content.description": "Segui la tua riunione con la trascrizione in tempo reale. Per ulteriori informazioni sull'utilizzo dei dati, consulta i <termsLink>Termini di Utilizzo</termsLink> e la <privacyLink>Informativa sulla Privacy</privacyLink>.",
   "panel.content.startButton": "Avvia Trascrizione",
   "panel.content.localeSelector.label": "Lingua",
   "panel.content.startButton.tooltip": "Avviando, la trascrizione sarà abilitata per tutti i partecipanti con supporto a questa funzione.",
