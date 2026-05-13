@@ -12,7 +12,7 @@
   "sidekick.panel.emptyState.subtitle": "Warten auf Wortmeldungen der Teilnehmer...",
   "sidekick.panel.emptyState.iconAlt": "Symbol für Sprache-zu-Text",
   "panel.content.title": "Transkribieren Sie Ihr Meeting in Echtzeit",
-  "panel.content.description": "Aktivieren Sie die automatische Transkription, um alles zu verfolgen, was während der Live-Sitzung gesagt wird. Die Nutzung dieser Funktion unterliegt den Datenschutzgesetzen und erfordert die Zustimmung der Teilnehmer.",
+  "panel.content.description": "Verfolgen Sie Ihr Meeting mit Echtzeit-Transkription. Für weitere Informationen zur Datennutzung lesen Sie bitte die <termsLink>Nutzungsbedingungen</termsLink> und die <privacyLink>Datenschutzrichtlinie</privacyLink>.",
   "panel.content.startButton": "Transkription starten",
   "panel.content.localeSelector.label": "Sprache",
   "panel.content.startButton.tooltip": "Beim Starten wird die Transkription für alle Teilnehmer aktiviert, die diese Funktion unterstützen.",

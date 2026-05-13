@@ -13,7 +13,12 @@ import { DataChannelResponse } from '../types';
 import { StartedLiveTranscription } from '../started-live-transcription/component';
 import { getLocaleName } from '../../service';
 import { useLiveTranscriptionStore } from '../../context';
-import { useEnabledLocales, usePanelImageUrl } from '../../context/settings/context';
+import {
+  useEnabledLocales,
+  usePanelImageUrl,
+  useTermsOfUseUrl,
+  usePrivacyPolicyUrl,
+} from '../../context/settings/context';
 import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../../index';
 
 function IllustrationSVG(props: React.SVGProps<SVGSVGElement>) {
@@ -52,6 +57,15 @@ function IllustrationSVG(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function ExternalLink({ href, children }: { href?: string; children?: React.ReactNode }) {
+  if (!href) return <span>{children}</span>;
+  return (
+    <Styled.InlineLink href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+    </Styled.InlineLink>
+  );
+}
+
 interface LiveTranscriptionPanelContentProps {
   pluginApi: NonNullable<PluginApi>;
   initialLocale: string;
@@ -67,7 +81,7 @@ const intlMessages = defineMessages({
   description: {
     id: 'panel.content.description',
     description: 'Description of the live transcription panel',
-    defaultMessage: 'Enable automatic transcription to follow everything said during the live session directly in the portal. The use of this feature is subject to privacy and data protection laws, and the consent of participants is required.',
+    defaultMessage: 'Follow your meeting with real-time transcription. For more information about data usage, consult the <termsLink>Terms of Use</termsLink> and the <privacyLink>Privacy Policy</privacyLink>.',
   },
   startButton: {
     id: 'panel.content.startButton',
@@ -94,6 +108,8 @@ export function LiveTranscriptionPanel({
   const { started, setStarted } = useLiveTranscriptionStore((s) => s);
   const enabledLocales = useEnabledLocales();
   const panelImageUrl = usePanelImageUrl();
+  const termsOfUseUrl = useTermsOfUseUrl();
+  const privacyPolicyUrl = usePrivacyPolicyUrl();
   const [selectedLocale, setSelectedLocale] = useState<string>(initialLocale ?? '');
 
   const {
@@ -139,7 +155,14 @@ export function LiveTranscriptionPanel({
         </div>
 
         <BBBTypography variant="text2">
-          {intl.formatMessage(intlMessages.description)}
+          {intl.formatMessage(intlMessages.description, {
+            termsLink: (chunks: React.ReactNode) => (
+              <ExternalLink href={termsOfUseUrl}>{chunks}</ExternalLink>
+            ),
+            privacyLink: (chunks: React.ReactNode) => (
+              <ExternalLink href={privacyPolicyUrl}>{chunks}</ExternalLink>
+            ),
+          })}
         </BBBTypography>
       </Styled.Content>
 
