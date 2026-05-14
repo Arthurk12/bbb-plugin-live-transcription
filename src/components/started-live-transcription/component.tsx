@@ -241,7 +241,7 @@ export function StartedLiveTranscription({
     const container = containerRef.current;
     if (!container) return;
 
-    const nearBottom = container.scrollTop <= 50;
+    const nearBottom = container.scrollTop >= -50;
     setIsAtBottom(nearBottom);
   }, []);
 
