@@ -1,7 +1,6 @@
 import styled from 'styled-components';
+// import { Icon } from '@mui/material';
 import {
-  colorHoverDark,
-  colorPrimary,
   colorWhite,
   colorNeutral4,
   space2,
@@ -9,15 +8,16 @@ import {
   space6,
   fontSizeSmMd,
   colorTextDefault,
+  colorPrimary,
 } from '../../styles-contants';
 
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
   position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
@@ -28,8 +28,7 @@ export const ScrollAreaSpacer = styled.div`
 
 export const ScrollArea = styled.div`
   overflow-y: auto;
-  height: 100%;
-  background-color: ${colorWhite};
+  flex: 1;
   display: flex;
   flex-direction: column-reverse;
   gap: ${space4};
@@ -86,23 +85,14 @@ export const Timestamp = styled.span`
   flex-shrink: 0;
 `;
 
-export const ScrollButton = styled.button`
+export const ScrollButton = styled.div`
   position: absolute;
   left: 50%;
   bottom: 1rem;
   transform: translateX(-50%);
-  background-color: ${colorPrimary};
-  color: white;
   width: 80%;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 0;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: ${colorHoverDark};
-  }
+  display: flex;
+  justify-content: center;
 `;
 
 export const HeaderToolbar = styled.div`
@@ -113,37 +103,6 @@ export const HeaderToolbar = styled.div`
   border-bottom: 1px solid ${colorNeutral4};
   gap: ${space2};
   overflow: visible;
-`;
-
-export const OverflowMenuWrapper = styled.div`
-  position: relative;
-  flex-shrink: 0;
-  overflow: visible;
-`;
-
-export const OverflowDropdown = styled.div`
-  position: absolute;
-  right: 0;
-  top: calc(100% + 4px);
-  background-color: ${colorWhite};
-  border: 1px solid ${colorNeutral4};
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  min-width: 8rem;
-  padding: ${space2} 0;
-  gap: ${space2};
-`;
-
-export const OverflowDropdownItem = styled.div`
-  display: flex;
-  padding: 0 ${space2};
-
-  > * {
-    width: 100%;
-  }
 `;
 
 export const HeaderToolbarGroup = styled.div`
@@ -157,24 +116,35 @@ export const ScrollAreaWrapper = styled.div`
   flex: 1;
   overflow: hidden;
   margin: ${space6};
+  display: flex;
+  flex-direction: column;
 `;
 
 export const SettingsPanel = styled.div`
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px 16px;
-  background-color: #f3f4f6;
-  border-bottom: 1px solid #ccc;
+  gap: 0.5rem;
+  margin: 0 .6rem 0;
+  padding-bottom: .5rem;
+  max-height: 55vh;
+  overflow-y: auto;
 `;
 
-export const SettingsPanelTitle = styled.span`
-  font-size: 12px;
-  font-weight: 600;
+export const SettingsSectionHeader = styled.div`
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  color: #6b7280;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
+  color: #9ca3af;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f4f6;
+  margin-top: 0.25rem;
+
+  &:first-child {
+    padding-top: 0;
+    border-top: none;
+    margin-top: 0;
+  }
 `;
 
 export const SettingsDivider = styled.hr`
@@ -186,6 +156,7 @@ export const SettingsDivider = styled.hr`
 export const SettingsRow = styled.div`
   display: flex;
   align-items: center;
+  margin-inline-start: 1rem;
   gap: 10px;
 `;
 
@@ -201,12 +172,10 @@ export const SettingsRangeWrapper = styled.div`
   align-items: center;
   gap: 8px;
   flex: 1;
-`;
 
-export const SettingsRangeValue = styled.span`
-  font-size: 12px;
-  color: #6b7280;
-  width: 40px;
+  input[type='range'] {
+    flex-grow: 0.5;
+  }
 `;
 
 export const FontFamilyOptions = styled.div`
@@ -215,33 +184,13 @@ export const FontFamilyOptions = styled.div`
   flex-wrap: wrap;
 `;
 
-export const FontFamilyButton = styled.button<{ active?: boolean; fontFamily: string }>`
-  padding: 4px 10px;
-  font-size: 13px;
-  font-family: ${({ fontFamily }) => fontFamily};
-  background-color: ${({ active }) => (active ? '#6366f1' : '#e5e7eb')};
-  color: ${({ active }) => (active ? '#fff' : '#374151')};
-  border: 2px solid ${({ active }) => (active ? '#6366f1' : 'transparent')};
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background-color: ${({ active }) => (active ? '#4f46e5' : '#d1d5db')};
-  }
+export const ButtonHeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  color: ${colorPrimary};
 `;
 
-export const OutlineStyleButton = styled.button<{ active?: boolean }>`
-  padding: 4px 10px;
-  font-size: 13px;
-  background-color: ${({ active }) => (active ? '#6366f1' : '#e5e7eb')};
-  color: ${({ active }) => (active ? '#fff' : '#374151')};
-  border: 2px solid ${({ active }) => (active ? '#6366f1' : 'transparent')};
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background-color: ${({ active }) => (active ? '#4f46e5' : '#d1d5db')};
-  }
+export const ButtonHeaderSpacer = styled.div`
+  flex: 1;
 `;

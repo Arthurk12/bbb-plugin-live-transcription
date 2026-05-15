@@ -28,6 +28,7 @@ export interface FloatingCaptionsFontSettings {
   outlineColor: string;
   outlineStyle: OutlineStyle;
   outlineSize: number;
+  backgroundColor: string;
 }
 
 export interface FloatingCaptionsSplitSettings {
@@ -122,6 +123,14 @@ function FloatingCaptionsContent(
     <div style={{
       fontFamily: fontSettings.fontFamily,
       padding: '12px 16px',
+      backgroundColor: fontSettings.backgroundColor,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      boxSizing: 'border-box',
+      overflow: 'auto',
     }}
     >
       {lastTwo.length === 0 && (
