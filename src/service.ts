@@ -14,3 +14,23 @@ export const getLocaleName = (locale: string) => {
     return locale;
   }
 };
+
+export const mostSimilarLanguage = (targetLanguage: string, availableLanguages: string[]) => {
+  // First, check if there is an exact match in the available locales
+  if (availableLanguages.includes(targetLanguage)) {
+    return targetLanguage;
+  }
+
+  // extracts only the language, without the region to find a match. "en-US" -> "en" for example
+  const languageCode = targetLanguage.split('-')[0];
+
+  // in case there is no similar language, falls back to the first available one
+  let matchedLocale = availableLanguages[0];
+  availableLanguages.forEach((locale) => {
+    if (locale.startsWith(languageCode)) {
+      matchedLocale = locale;
+    }
+  });
+
+  return matchedLocale;
+};

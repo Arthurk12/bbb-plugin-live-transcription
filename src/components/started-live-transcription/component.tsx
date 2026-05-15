@@ -8,10 +8,11 @@ import {
   ContentCopy as MDContentCopyIcon,
   OpenInNew as MDOpenInNewIcon,
   OpenInNewOff as MdOpenInNewOffIcon,
-  Settings as MDSettingsIcon,
-  MoreHoriz as MDMoreHorizIcon,
+  Edit as MDEditIcon,
 } from '@mui/icons-material';
-import { BBBTypography, BBButton } from '@mconf/bbb-ui-components-react';
+import {
+  BBBTypography, BBButton, BBBToggle, BBBAccordion,
+} from '@mconf/bbb-ui-components-react';
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
 import { CaptionGraphqlResult } from '../types';
@@ -52,6 +53,7 @@ const DEFAULT_FONT_SETTINGS: FloatingCaptionsFontSettings = {
   outlineColor: '#000000',
   outlineStyle: 'none',
   outlineSize: 2,
+  backgroundColor: '#ffffff',
 };
 
 const DEFAULT_SPLIT_SETTINGS: FloatingCaptionsSplitSettings = {
@@ -91,10 +93,10 @@ const intlMessages = defineMessages({
     description: 'Label for the floating captions button when window is open',
     defaultMessage: 'Close Float',
   },
-  fontSettingsLabel: {
-    id: 'sidekick.panel.fontSettings.tooltip',
+  settingsLabel: {
+    id: 'sidekick.panel.settings.label',
     description: 'Label for the caption style settings button',
-    defaultMessage: 'Settings',
+    defaultMessage: 'Configurações da janela destacada',
   },
   fontSizeLabel: {
     id: 'sidekick.panel.fontSettings.size',
@@ -114,17 +116,17 @@ const intlMessages = defineMessages({
   showUserNameLabel: {
     id: 'sidekick.panel.fontSettings.showUserName',
     description: 'Label for show/hide user name setting',
-    defaultMessage: 'Show name',
+    defaultMessage: 'Show',
   },
   fontFamilyLabel: {
     id: 'sidekick.panel.fontSettings.fontFamily',
     description: 'Label for font family setting',
-    defaultMessage: 'Font',
+    defaultMessage: 'Family',
   },
   userNameColorLabel: {
     id: 'sidekick.panel.fontSettings.userNameColor',
     description: 'Label for user name color setting',
-    defaultMessage: 'Name color',
+    defaultMessage: 'Color',
   },
   userNameBoldLabel: {
     id: 'sidekick.panel.fontSettings.userNameBold',
@@ -134,17 +136,17 @@ const intlMessages = defineMessages({
   outlineColorLabel: {
     id: 'sidekick.panel.fontSettings.outlineColor',
     description: 'Label for text outline color setting',
-    defaultMessage: 'Outline color',
+    defaultMessage: 'Color',
   },
   outlineStyleLabel: {
     id: 'sidekick.panel.fontSettings.outlineStyle',
     description: 'Label for text outline style setting',
-    defaultMessage: 'Outline',
+    defaultMessage: 'Type',
   },
   outlineSizeLabel: {
     id: 'sidekick.panel.fontSettings.outlineSize',
     description: 'Label for text outline size setting',
-    defaultMessage: 'Outline size',
+    defaultMessage: 'Size',
   },
   lineLimitLabel: {
     id: 'sidekick.panel.fontSettings.lineLimit',
@@ -156,6 +158,41 @@ const intlMessages = defineMessages({
     description: 'Label for lines per caption setting',
     defaultMessage: 'Lines per caption',
   },
+  fontSettingsTooltipLabel: {
+    id: 'sidekick.panel.fontSettings.tooltip',
+    description: 'Tooltip explaining settings apply only to the floating captions window',
+    defaultMessage: 'These settings apply only to the floating captions window',
+  },
+  backgroundColorLabel: {
+    id: 'sidekick.panel.fontSettings.backgroundColor',
+    description: 'Label for background color setting of the floating captions window',
+    defaultMessage: 'Color',
+  },
+  sectionFontLabel: {
+    id: 'sidekick.panel.fontSettings.section.font',
+    description: 'Section header for font settings',
+    defaultMessage: 'Font',
+  },
+  sectionOutlineLabel: {
+    id: 'sidekick.panel.fontSettings.section.outline',
+    description: 'Section header for outline settings',
+    defaultMessage: 'Outline',
+  },
+  sectionBackgroundLabel: {
+    id: 'sidekick.panel.fontSettings.section.background',
+    description: 'Section header for background settings',
+    defaultMessage: 'Background',
+  },
+  sectionShowNameLabel: {
+    id: 'sidekick.panel.fontSettings.section.showName',
+    description: 'Section header for show name settings',
+    defaultMessage: 'Name',
+  },
+  sectionLayoutLabel: {
+    id: 'sidekick.panel.fontSettings.section.layout',
+    description: 'Section header for layout settings',
+    defaultMessage: 'Layout',
+  },
 });
 
 export function StartedLiveTranscription({
@@ -166,19 +203,19 @@ export function StartedLiveTranscription({
   const containerRef = useRef<HTMLDivElement>(null);
   const captionsTextRef = useRef('');
   const toolbarRef = useRef<HTMLDivElement>(null);
-  const leftGroupRef = useRef<HTMLDivElement>(null);
-  const rightGroupRef = useRef<HTMLDivElement>(null);
-  const overflowMenuRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const { loadSince, setLoadSince } = useLiveTranscriptionStore((s) => s);
   const [floatingOpen, setFloatingOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [isNarrow, setIsNarrow] = useState(false);
-  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
   const [fontSettings, setFontSettings] = useState<
     FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
   const [splitSettings, setSplitSettings] = useState<
     FloatingCaptionsSplitSettings>(DEFAULT_SPLIT_SETTINGS);
+  // Force a re-render after DOM commit so BBBAccordion re-measures its content
+  // height when conditional rows (showUserName, outlineStyle) are toggled.
+  const [, setAccordionTick] = useState(0);
+  useLayoutEffect(() => {
+    setAccordionTick((n) => n + 1);
+  }, [fontSettings.showUserName, fontSettings.outlineStyle]);
 
   const {
     data: captions,
@@ -241,39 +278,11 @@ export function StartedLiveTranscription({
     const container = containerRef.current;
     if (!container) return;
 
-    const nearBottom = container.scrollTop <= 50;
+    const nearBottom = container.scrollTop >= -50;
     setIsAtBottom(nearBottom);
   }, []);
 
   const nothingToShow = captions?.caption_history.length === 0;
-
-  useLayoutEffect(() => {
-    const toolbar = toolbarRef.current;
-    const observer = new ResizeObserver(([entry]) => {
-      const leftW = leftGroupRef.current?.offsetWidth ?? 0;
-      const rightW = rightGroupRef.current?.offsetWidth ?? 0;
-      setIsNarrow(entry.contentRect.width < leftW + rightW);
-    });
-    if (toolbar) {
-      observer.observe(toolbar);
-    }
-    return () => {
-      observer.disconnect();
-    };
-  }, [nothingToShow]);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!overflowMenuOpen) return;
-      if (overflowMenuRef.current && !overflowMenuRef.current.contains(e.target as Node)) {
-        setOverflowMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [overflowMenuOpen]);
 
   pluginLogger.debug('Rendering captions panel', {
     logCode: 'live_transcription_render_captions',
@@ -309,7 +318,7 @@ export function StartedLiveTranscription({
         />
       )}
       <Styled.HeaderToolbar ref={toolbarRef}>
-        <Styled.HeaderToolbarGroup ref={leftGroupRef}>
+        <Styled.HeaderToolbarGroup>
           <BBButton
             label={intl.formatMessage(intlMessages.clearButtonlabel)}
             iconStart={<MDHistoryIcon style={{ fontSize: '0.85rem' }} />}
@@ -325,13 +334,7 @@ export function StartedLiveTranscription({
             onClick={handleCopyCaptions}
           />
         </Styled.HeaderToolbarGroup>
-        <Styled.HeaderToolbarGroup
-          ref={rightGroupRef}
-          aria-hidden={isNarrow || undefined}
-          style={isNarrow ? {
-            visibility: 'hidden', position: 'absolute', pointerEvents: 'none',
-          } : undefined}
-        >
+        <Styled.HeaderToolbarGroup>
           <BBButton
             label={intl.formatMessage(floatingOpen
               ? intlMessages.floatButtonClose : intlMessages.floatButtonOpen)}
@@ -342,62 +345,56 @@ export function StartedLiveTranscription({
             variant="tertiary"
             onClick={() => setFloatingOpen((prev) => !prev)}
           />
-          <BBButton
-            label={intl.formatMessage(intlMessages.fontSettingsLabel)}
-            iconStart={<MDSettingsIcon style={{ fontSize: '0.85rem' }} />}
-            size="sm"
-            variant="tertiary"
-            onClick={() => setSettingsOpen((prev) => !prev)}
-          />
         </Styled.HeaderToolbarGroup>
-        {isNarrow && (
-          <Styled.OverflowMenuWrapper ref={overflowMenuRef}>
-            <BBButton
-              label=""
-              iconStart={<MDMoreHorizIcon style={{ fontSize: '0.85rem' }} />}
-              size="sm"
-              variant="tertiary"
-              onClick={() => setOverflowMenuOpen((prev) => !prev)}
-            />
-            {overflowMenuOpen && (
-              <Styled.OverflowDropdown>
-                <Styled.OverflowDropdownItem>
-                  <BBButton
-                    label={intl.formatMessage(floatingOpen
-                      ? intlMessages.floatButtonClose : intlMessages.floatButtonOpen)}
-                    iconStart={floatingOpen
-                      ? <MdOpenInNewOffIcon style={{ fontSize: '0.85rem' }} />
-                      : <MDOpenInNewIcon style={{ fontSize: '0.85rem' }} />}
-                    size="sm"
-                    variant="tertiary"
-                    onClick={() => {
-                      setFloatingOpen((prev) => !prev);
-                      setOverflowMenuOpen(false);
-                    }}
-                  />
-                </Styled.OverflowDropdownItem>
-                <Styled.OverflowDropdownItem>
-                  <BBButton
-                    label={intl.formatMessage(intlMessages.fontSettingsLabel)}
-                    iconStart={<MDSettingsIcon style={{ fontSize: '0.85rem' }} />}
-                    size="sm"
-                    variant="tertiary"
-                    onClick={() => {
-                      setSettingsOpen((prev) => !prev);
-                      setOverflowMenuOpen(false);
-                    }}
-                  />
-                </Styled.OverflowDropdownItem>
-              </Styled.OverflowDropdown>
-            )}
-          </Styled.OverflowMenuWrapper>
-        )}
       </Styled.HeaderToolbar>
-      {settingsOpen && (
+      <BBBAccordion
+        title={intl.formatMessage(intlMessages.settingsLabel)}
+        tooltipLabel={intl.formatMessage(intlMessages.fontSettingsTooltipLabel)}
+        buttonHeader={(
+          <Styled.ButtonHeaderWrapper>
+            <Styled.ButtonHeaderSpacer />
+            <MDEditIcon style={{ fontSize: '0.85rem' }} />
+          </Styled.ButtonHeaderWrapper>
+        )}
+      >
         <Styled.SettingsPanel>
-          <Styled.SettingsPanelTitle>
-            {intl.formatMessage(intlMessages.fontSettingsLabel)}
-          </Styled.SettingsPanelTitle>
+
+          <Styled.SettingsSectionHeader>
+            {intl.formatMessage(intlMessages.sectionFontLabel)}
+          </Styled.SettingsSectionHeader>
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.fontFamilyLabel)}
+            </Styled.SettingsLabel>
+            <Styled.FontFamilyOptions>
+              {FONT_OPTIONS.map((font) => (
+                <BBButton
+                  key={font.value}
+                  label={font.label}
+                  variant={fontSettings.fontFamily === font.value ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={() => setFontSettings((prev) => ({
+                    ...prev,
+                    fontFamily: font.value,
+                  }))}
+                />
+              ))}
+            </Styled.FontFamilyOptions>
+          </Styled.SettingsRow>
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.fontWeightLabel)}
+            </Styled.SettingsLabel>
+            <BBBToggle
+              checked={fontSettings.fontWeight === 'bold'}
+              onChange={(_, checked) => setFontSettings((prev) => ({
+                ...prev,
+                fontWeight: checked ? 'bold' : 'normal',
+              }))}
+            />
+          </Styled.SettingsRow>
 
           <Styled.SettingsRow>
             <Styled.SettingsLabel>
@@ -414,10 +411,10 @@ export function StartedLiveTranscription({
                   fontSize: Number(e.target.value),
                 }))}
               />
-              <Styled.SettingsRangeValue>
+              <BBBTypography variant="text2">
                 {fontSettings.fontSize}
                 px
-              </Styled.SettingsRangeValue>
+              </BBBTypography>
             </Styled.SettingsRangeWrapper>
           </Styled.SettingsRow>
 
@@ -435,21 +432,9 @@ export function StartedLiveTranscription({
             />
           </Styled.SettingsRow>
 
-          <Styled.SettingsRow>
-            <Styled.SettingsLabel>
-              {intl.formatMessage(intlMessages.fontWeightLabel)}
-            </Styled.SettingsLabel>
-            <input
-              type="checkbox"
-              checked={fontSettings.fontWeight === 'bold'}
-              onChange={(e) => setFontSettings((prev) => ({
-                ...prev,
-                fontWeight: e.target.checked ? 'bold' : 'normal',
-              }))}
-            />
-          </Styled.SettingsRow>
-
-          <Styled.SettingsDivider />
+          <Styled.SettingsSectionHeader>
+            {intl.formatMessage(intlMessages.sectionOutlineLabel)}
+          </Styled.SettingsSectionHeader>
 
           <Styled.SettingsRow>
             <Styled.SettingsLabel>
@@ -457,17 +442,16 @@ export function StartedLiveTranscription({
             </Styled.SettingsLabel>
             <Styled.FontFamilyOptions>
               {OUTLINE_STYLE_OPTIONS.map((opt) => (
-                <Styled.OutlineStyleButton
+                <BBButton
                   key={opt.value}
-                  type="button"
-                  active={fontSettings.outlineStyle === opt.value}
+                  label={opt.label}
+                  variant={fontSettings.outlineStyle === opt.value ? 'primary' : 'secondary'}
+                  size="sm"
                   onClick={() => setFontSettings((prev) => ({
                     ...prev,
                     outlineStyle: opt.value,
                   }))}
-                >
-                  {opt.label}
-                </Styled.OutlineStyleButton>
+                />
               ))}
             </Styled.FontFamilyOptions>
           </Styled.SettingsRow>
@@ -503,27 +487,46 @@ export function StartedLiveTranscription({
                       outlineSize: Number(e.target.value),
                     }))}
                   />
-                  <Styled.SettingsRangeValue>
+                  <BBBTypography variant="text2">
                     {fontSettings.outlineSize}
                     px
-                  </Styled.SettingsRangeValue>
+                  </BBBTypography>
                 </Styled.SettingsRangeWrapper>
               </Styled.SettingsRow>
             </>
           )}
 
-          <Styled.SettingsDivider />
+          <Styled.SettingsSectionHeader>
+            {intl.formatMessage(intlMessages.sectionBackgroundLabel)}
+          </Styled.SettingsSectionHeader>
+
+          <Styled.SettingsRow>
+            <Styled.SettingsLabel>
+              {intl.formatMessage(intlMessages.backgroundColorLabel)}
+            </Styled.SettingsLabel>
+            <input
+              type="color"
+              value={fontSettings.backgroundColor}
+              onChange={(e) => setFontSettings((prev) => ({
+                ...prev,
+                backgroundColor: e.target.value,
+              }))}
+            />
+          </Styled.SettingsRow>
+
+          <Styled.SettingsSectionHeader>
+            {intl.formatMessage(intlMessages.sectionShowNameLabel)}
+          </Styled.SettingsSectionHeader>
 
           <Styled.SettingsRow>
             <Styled.SettingsLabel>
               {intl.formatMessage(intlMessages.showUserNameLabel)}
             </Styled.SettingsLabel>
-            <input
-              type="checkbox"
+            <BBBToggle
               checked={fontSettings.showUserName}
-              onChange={(e) => setFontSettings((prev) => ({
+              onChange={(_, checked) => setFontSettings((prev) => ({
                 ...prev,
-                showUserName: e.target.checked,
+                showUserName: checked,
               }))}
             />
           </Styled.SettingsRow>
@@ -548,43 +551,20 @@ export function StartedLiveTranscription({
                 <Styled.SettingsLabel>
                   {intl.formatMessage(intlMessages.userNameBoldLabel)}
                 </Styled.SettingsLabel>
-                <input
-                  type="checkbox"
+                <BBBToggle
                   checked={fontSettings.userNameBold}
-                  onChange={(e) => setFontSettings((prev) => ({
+                  onChange={(_, checked) => setFontSettings((prev) => ({
                     ...prev,
-                    userNameBold: e.target.checked,
+                    userNameBold: checked,
                   }))}
                 />
               </Styled.SettingsRow>
             </>
           )}
 
-          <Styled.SettingsDivider />
-
-          <Styled.SettingsRow>
-            <Styled.SettingsLabel>
-              {intl.formatMessage(intlMessages.fontFamilyLabel)}
-            </Styled.SettingsLabel>
-            <Styled.FontFamilyOptions>
-              {FONT_OPTIONS.map((font) => (
-                <Styled.FontFamilyButton
-                  key={font.value}
-                  type="button"
-                  fontFamily={font.value}
-                  active={fontSettings.fontFamily === font.value}
-                  onClick={() => setFontSettings((prev) => ({
-                    ...prev,
-                    fontFamily: font.value,
-                  }))}
-                >
-                  {font.label}
-                </Styled.FontFamilyButton>
-              ))}
-            </Styled.FontFamilyOptions>
-          </Styled.SettingsRow>
-
-          <Styled.SettingsDivider />
+          <Styled.SettingsSectionHeader>
+            {intl.formatMessage(intlMessages.sectionLayoutLabel)}
+          </Styled.SettingsSectionHeader>
 
           <Styled.SettingsRow>
             <Styled.SettingsLabel>
@@ -601,9 +581,9 @@ export function StartedLiveTranscription({
                   lineLimit: Number(e.target.value),
                 }))}
               />
-              <Styled.SettingsRangeValue>
+              <BBBTypography variant="text2">
                 {splitSettings.lineLimit}
-              </Styled.SettingsRangeValue>
+              </BBBTypography>
             </Styled.SettingsRangeWrapper>
           </Styled.SettingsRow>
 
@@ -622,14 +602,15 @@ export function StartedLiveTranscription({
                   linesPerMessage: Number(e.target.value),
                 }))}
               />
-              <Styled.SettingsRangeValue>
+              <BBBTypography variant="text2">
                 {splitSettings.linesPerMessage}
-              </Styled.SettingsRangeValue>
+              </BBBTypography>
             </Styled.SettingsRangeWrapper>
           </Styled.SettingsRow>
 
         </Styled.SettingsPanel>
-      )}
+      </BBBAccordion>
+      <Styled.SettingsDivider />
       <Styled.ScrollAreaWrapper>
         <Styled.ScrollArea ref={containerRef} onScroll={handleScroll}>
           <Styled.ScrollAreaSpacer />
@@ -654,8 +635,13 @@ export function StartedLiveTranscription({
         </Styled.ScrollArea>
 
         {!isAtBottom && (
-          <Styled.ScrollButton type="button" onClick={scrollToBottom}>
-            {intl.formatMessage(intlMessages.scrollButtonLabel)}
+          <Styled.ScrollButton>
+            <BBButton
+              label={intl.formatMessage(intlMessages.scrollButtonLabel)}
+              variant="primary"
+              size="sm"
+              onClick={scrollToBottom}
+            />
           </Styled.ScrollButton>
         )}
       </Styled.ScrollAreaWrapper>

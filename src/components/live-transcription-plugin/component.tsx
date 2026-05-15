@@ -7,11 +7,17 @@ import { createIntl, createIntlCache, defineMessages } from 'react-intl';
 import { GenericContentSidekickArea } from 'bigbluebutton-html-plugin-sdk';
 import { LiveTranscriptionPluginProps } from '../types';
 import { useLiveTranscriptionStore } from '../../context';
-import { SettingsProvider, useCaptionEnabled, useLiveTranscriptionDisabled } from '../../context/settings/context';
+import {
+  SettingsProvider,
+  useCaptionEnabled,
+  useEnabledLocales,
+  useLiveTranscriptionDisabled,
+} from '../../context/settings/context';
 import { LiveTranscriptionPanel } from '../live-transcription-panel/component';
 import { StartedLiveTranscription } from '../started-live-transcription/component';
 import useEnableTranscription from '../../hooks/useEnableTranscription';
 import { pluginLogger } from '../..';
+import { mostSimilarLanguage } from '../../service';
 
 const intlMessages = defineMessages({
   sidekickSectionName: {
@@ -53,6 +59,7 @@ export function LiveTranscriptionPlugin(
   const liveTranscriptionDisabled = useLiveTranscriptionDisabled();
   const requiredFeaturesEnabled = captionEnabled && !liveTranscriptionDisabled;
   const { activeLocale } = useLiveTranscriptionStore();
+  const enabledLocales = useEnabledLocales();
 
   const currentUser = pluginApi.useCurrentUser!();
   const {
@@ -80,7 +87,7 @@ export function LiveTranscriptionPlugin(
             <SettingsProvider pluginApi={pluginApi}>
               <LiveTranscriptionPanel
                 pluginApi={pluginApi}
-                initialLocale={activeLocale || currentLocale}
+                initialLocale={activeLocale || mostSimilarLanguage(currentLocale, enabledLocales)}
                 intl={intl}
               />
             </SettingsProvider>,
