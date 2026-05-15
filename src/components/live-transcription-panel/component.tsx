@@ -18,6 +18,7 @@ import {
   usePanelImageUrl,
   useTermsOfUseUrl,
   usePrivacyPolicyUrl,
+  useSpeechProvider,
 } from '../../context/settings/context';
 import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../../index';
 
@@ -93,10 +94,15 @@ const intlMessages = defineMessages({
     description: 'Label for the locale selector',
     defaultMessage: 'Language',
   },
-  startButtonTooltip: {
-    id: 'panel.content.startButton.tooltip',
-    description: 'Tooltip shown on the start button',
-    defaultMessage: 'Start live transcription with the selected language',
+  startButtonTooltipWebspeech: {
+    id: 'panel.content.startButton.tooltip.webspeech',
+    description: 'Tooltip shown on the start button when webspeech provider is selected',
+    defaultMessage: 'Start live transcription with the selected language - your browser support for this feature will be used',
+  },
+  startButtonTooltipOther: {
+    id: 'panel.content.startButton.tooltip.other',
+    description: 'Tooltip shown on the start button when a different provider is selected',
+    defaultMessage: 'Start live transcription - it will be enabled for everyone in the meeting',
   },
 });
 
@@ -110,6 +116,7 @@ export function LiveTranscriptionPanel({
   const panelImageUrl = usePanelImageUrl();
   const termsOfUseUrl = useTermsOfUseUrl();
   const privacyPolicyUrl = usePrivacyPolicyUrl();
+  const provider = useSpeechProvider();
   const [selectedLocale, setSelectedLocale] = useState<string>(initialLocale ?? '');
 
   const {
@@ -187,7 +194,11 @@ export function LiveTranscriptionPanel({
           label={intl.formatMessage(intlMessages.startButton)}
           variant="primary"
           onClick={handleStartTranscription}
-          tooltipLabel={intl.formatMessage(intlMessages.startButtonTooltip)}
+          tooltipLabel={intl.formatMessage(
+            provider === 'webspeech'
+              ? intlMessages.startButtonTooltipWebspeech
+              : intlMessages.startButtonTooltipOther,
+          )}
         />
       </Styled.Footer>
     </Styled.Container>
