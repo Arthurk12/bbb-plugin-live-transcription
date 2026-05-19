@@ -10,15 +10,17 @@ import {
   OpenInNewOff as MdOpenInNewOffIcon,
   Edit as MDEditIcon,
 } from '@mui/icons-material';
+import { MenuItem } from '@mui/material';
 import {
-  BBBTypography, BBButton, BBBToggle, BBBAccordion,
+  BBBTypography, BBButton, BBBToggle, BBBAccordion, BBBSelect,
 } from '@mconf/bbb-ui-components-react';
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
-import { CaptionGraphqlResult } from '../types';
-import { GET_CAPTIONS_SINCE } from '../queries';
+import { CaptionActiveLocaleGraphqlResponse, CaptionGraphqlResult } from '../types';
+import { GET_CAPTION_ACTIVE_LOCALES, GET_CAPTIONS_SINCE } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
+import { getLocaleName, isGladia, mostSimilarLanguage } from '../../service';
 import {
   FloatingCaptionsWindow,
   FloatingCaptionsFontSettings,
@@ -27,6 +29,7 @@ import {
 } from '../floating-captions/component';
 import { pluginLogger } from '../../index';
 import { useLiveTranscriptionStore } from '../../context';
+import { useEnabledLocales, useSpeechProvider } from '../../context/settings/context';
 
 const FONT_OPTIONS = [
   { label: 'Inter', value: 'Inter, sans-serif' },
@@ -68,6 +71,11 @@ interface LiveTranscriptionPanelProps {
 }
 
 const intlMessages = defineMessages({
+  viewLocaleSelectorLabel: {
+    id: 'sidekick.panel.viewLocaleSelector.label',
+    description: 'Label for the view language selector in the started panel',
+    defaultMessage: 'View language',
+  },
   scrollButtonLabel: {
     id: 'sidekick.panel.scrollButton.label',
     description: 'Label for the "Scroll to latest" button',
@@ -204,18 +212,32 @@ export function StartedLiveTranscription({
   const captionsTextRef = useRef('');
   const toolbarRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
-  const { loadSince, setLoadSince } = useLiveTranscriptionStore((s) => s);
+  const { loadSince, setLoadSince, currentLocale } = useLiveTranscriptionStore((s) => s);
+  const enabledLocales = useEnabledLocales();
+  const provider = useSpeechProvider();
   const [floatingOpen, setFloatingOpen] = useState(false);
   const [fontSettings, setFontSettings] = useState<
     FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
   const [splitSettings, setSplitSettings] = useState<
     FloatingCaptionsSplitSettings>(DEFAULT_SPLIT_SETTINGS);
+  const [viewLocale, setViewLocale] = useState<string>(locale === 'auto'
+    ? mostSimilarLanguage(currentLocale, enabledLocales) : locale);
   // Force a re-render after DOM commit so BBBAccordion re-measures its content
   // height when conditional rows (showUserName, outlineStyle) are toggled.
   const [, setAccordionTick] = useState(0);
   useLayoutEffect(() => {
     setAccordionTick((n) => n + 1);
   }, [fontSettings.showUserName, fontSettings.outlineStyle]);
+
+  const { data: captionActiveLocalesResult } = pluginApi.useCustomSubscription!<
+    CaptionActiveLocaleGraphqlResponse>(GET_CAPTION_ACTIVE_LOCALES);
+
+  const otherLocales = React.useMemo(() => {
+    if (!captionActiveLocalesResult) return [];
+    return captionActiveLocalesResult.caption_activeLocales
+      .map((l) => l.locale)
+      .filter((l) => l !== '' && l !== 'auto' && l !== viewLocale);
+  }, [captionActiveLocalesResult, viewLocale]);
 
   const {
     data: captions,
@@ -224,7 +246,7 @@ export function StartedLiveTranscription({
     GET_CAPTIONS_SINCE,
     {
       variables: {
-        locale,
+        locale: viewLocale,
         since: loadSince,
       },
     },
@@ -235,12 +257,12 @@ export function StartedLiveTranscription({
       logCode: 'live_transcription_captions_update',
       extraInfo: {
         captions,
-        locale,
+        locale: viewLocale,
         captionsLoading,
         loadSince,
       },
     });
-  }, [captions, captionsLoading, locale, loadSince]);
+  }, [captions, captionsLoading, viewLocale, loadSince]);
 
   const scrollToBottom = useCallback(() => {
     const container = containerRef.current;
@@ -252,9 +274,9 @@ export function StartedLiveTranscription({
 
   const handleClearCaptions = useCallback(() => {
     const timestamp = new Date().toISOString();
-    pluginLogger.info('Clearing captions history', { logCode: 'live_transcription_clear_history', extraInfo: { locale, timestamp } });
+    pluginLogger.info('Clearing captions history', { logCode: 'live_transcription_clear_history', extraInfo: { locale: viewLocale, timestamp } });
     setLoadSince(timestamp);
-  }, [locale, setLoadSince]);
+  }, [viewLocale, setLoadSince]);
 
   const handleCopyCaptions = useCallback(() => {
     pluginLogger.debug('Copying captions to clipboard', { logCode: 'live_transcription_copy_captions', extraInfo: { charCount: captionsTextRef.current.length } });
@@ -274,6 +296,13 @@ export function StartedLiveTranscription({
     captionsTextRef.current = text;
   }, [captions]);
 
+  useEffect(() => {
+    pluginLogger.debug('Captions active locales update', {
+      logCode: 'live_transcription_active_locales_update',
+      extraInfo: { otherLocales, locale, viewLocale },
+    });
+  }, [otherLocales, locale, viewLocale]);
+
   const handleScroll = useCallback(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -287,7 +316,7 @@ export function StartedLiveTranscription({
   pluginLogger.debug('Rendering captions panel', {
     logCode: 'live_transcription_render_captions',
     extraInfo: {
-      locale,
+      locale: viewLocale,
       captionCount: captions?.caption_history?.length ?? 0,
       isAtBottom,
       nothingToShow,
@@ -300,6 +329,8 @@ export function StartedLiveTranscription({
     userColor: c.user.color,
     userAvatar: c.user.avatar,
   }));
+
+  const viewLocaleSelectorVisible = otherLocales.length > 0;
 
   if (nothingToShow) {
     return <EmptyState intl={intl} />;
@@ -318,34 +349,54 @@ export function StartedLiveTranscription({
         />
       )}
       <Styled.HeaderToolbar ref={toolbarRef}>
-        <Styled.HeaderToolbarGroup>
-          <BBButton
-            label={intl.formatMessage(intlMessages.clearButtonlabel)}
-            iconStart={<MDHistoryIcon style={{ fontSize: '0.85rem' }} />}
-            onClick={handleClearCaptions}
-            size="sm"
-            variant="tertiary"
-          />
-          <BBButton
-            label={intl.formatMessage(intlMessages.copyButtonLabel)}
-            iconStart={<MDContentCopyIcon style={{ fontSize: '0.85rem' }} />}
-            size="sm"
-            variant="tertiary"
-            onClick={handleCopyCaptions}
-          />
-        </Styled.HeaderToolbarGroup>
-        <Styled.HeaderToolbarGroup>
-          <BBButton
-            label={intl.formatMessage(floatingOpen
-              ? intlMessages.floatButtonClose : intlMessages.floatButtonOpen)}
-            iconStart={floatingOpen
-              ? <MdOpenInNewOffIcon style={{ fontSize: '0.85rem' }} />
-              : <MDOpenInNewIcon style={{ fontSize: '0.85rem' }} />}
-            size="sm"
-            variant="tertiary"
-            onClick={() => setFloatingOpen((prev) => !prev)}
-          />
-        </Styled.HeaderToolbarGroup>
+        {isGladia(provider) && viewLocaleSelectorVisible && (
+          <BBBSelect
+            id="view-locale-select"
+            value={viewLocale}
+            title={intl.formatMessage(intlMessages.viewLocaleSelectorLabel)}
+            onChange={(e) => setViewLocale(e.target.value as string)}
+            fullWidth
+          >
+            <MenuItem key={locale} value={locale}>
+              {getLocaleName(locale)}
+            </MenuItem>
+            {otherLocales.map((l) => (
+              <MenuItem key={l} value={l}>
+                {getLocaleName(l)}
+              </MenuItem>
+            ))}
+          </BBBSelect>
+        )}
+        <Styled.HeaderToolbarRow>
+          <Styled.HeaderToolbarGroup>
+            <BBButton
+              label={intl.formatMessage(intlMessages.clearButtonlabel)}
+              iconStart={<MDHistoryIcon style={{ fontSize: '0.85rem' }} />}
+              onClick={handleClearCaptions}
+              size="sm"
+              variant="tertiary"
+            />
+            <BBButton
+              label={intl.formatMessage(intlMessages.copyButtonLabel)}
+              iconStart={<MDContentCopyIcon style={{ fontSize: '0.85rem' }} />}
+              size="sm"
+              variant="tertiary"
+              onClick={handleCopyCaptions}
+            />
+          </Styled.HeaderToolbarGroup>
+          <Styled.HeaderToolbarGroup>
+            <BBButton
+              label={intl.formatMessage(floatingOpen
+                ? intlMessages.floatButtonClose : intlMessages.floatButtonOpen)}
+              iconStart={floatingOpen
+                ? <MdOpenInNewOffIcon style={{ fontSize: '0.85rem' }} />
+                : <MDOpenInNewIcon style={{ fontSize: '0.85rem' }} />}
+              size="sm"
+              variant="tertiary"
+              onClick={() => setFloatingOpen((prev) => !prev)}
+            />
+          </Styled.HeaderToolbarGroup>
+        </Styled.HeaderToolbarRow>
       </Styled.HeaderToolbar>
       <BBBAccordion
         title={intl.formatMessage(intlMessages.settingsLabel)}

@@ -12,12 +12,13 @@ import {
   useCaptionEnabled,
   useEnabledLocales,
   useLiveTranscriptionDisabled,
+  useSpeechProvider,
 } from '../../context/settings/context';
 import { LiveTranscriptionPanel } from '../live-transcription-panel/component';
 import { StartedLiveTranscription } from '../started-live-transcription/component';
 import useEnableTranscription from '../../hooks/useEnableTranscription';
 import { pluginLogger } from '../..';
-import { mostSimilarLanguage } from '../../service';
+import { isGladia, mostSimilarLanguage } from '../../service';
 
 const intlMessages = defineMessages({
   sidekickSectionName: {
@@ -29,6 +30,11 @@ const intlMessages = defineMessages({
     id: 'sidekick.panel.buttonTitle',
     description: 'Title of the sidekick panel foreach live-transcription menu ',
     defaultMessage: 'Live Transcription',
+  },
+  sidekickButtonTitleTranslation: {
+    id: 'sidekick.panel.buttonTitle.translation',
+    description: 'Title of the sidekick panel when translation is supported',
+    defaultMessage: 'Live Transcription & Translation',
   },
 });
 
@@ -58,8 +64,9 @@ export function LiveTranscriptionPlugin(
   const captionEnabled = useCaptionEnabled();
   const liveTranscriptionDisabled = useLiveTranscriptionDisabled();
   const requiredFeaturesEnabled = captionEnabled && !liveTranscriptionDisabled;
-  const { activeLocale } = useLiveTranscriptionStore();
+  const { activeLocale, setCurrentLocale } = useLiveTranscriptionStore();
   const enabledLocales = useEnabledLocales();
+  const provider = useSpeechProvider();
 
   const currentUser = pluginApi.useCurrentUser!();
   const {
@@ -71,13 +78,22 @@ export function LiveTranscriptionPlugin(
   const transcriptionStarted = useEnableTranscription(pluginApi, Boolean(isMod));
 
   useEffect(() => {
+    pluginLogger.debug('Updating current locale in store', { logCode: 'live_transcription_update_current_locale', extraInfo: { currentLocale } });
+    setCurrentLocale(currentLocale);
+  }, [currentLocale]);
+
+  useEffect(() => {
     if (!intl || !requiredFeaturesEnabled) return;
     let sidekickPanel: GenericContentSidekickArea | undefined;
     if (isMod) {
-      pluginLogger.debug('Initializing sidekick panel for moderators', { logCode: 'live_transcription_init_mod_panel', extraInfo: { uuid, intl, activeLocale } });
+      pluginLogger.debug('Initializing sidekick panel for moderators', { logCode: 'live_transcription_init_mod_panel', extraInfo: { uuid, intl: intl.locale, activeLocale } });
       sidekickPanel = new GenericContentSidekickArea({
         id: `live-transcription-${uuid}`,
-        name: intl.formatMessage(intlMessages.sidekickButtonTitle),
+        name: intl.formatMessage(
+          isGladia(provider)
+            ? intlMessages.sidekickButtonTitleTranslation
+            : intlMessages.sidekickButtonTitle,
+        ),
         buttonIcon: 'closed_caption',
         section: intl.formatMessage(intlMessages.sidekickSectionName),
         open: false,
@@ -87,7 +103,11 @@ export function LiveTranscriptionPlugin(
             <SettingsProvider pluginApi={pluginApi}>
               <LiveTranscriptionPanel
                 pluginApi={pluginApi}
-                initialLocale={activeLocale || mostSimilarLanguage(currentLocale, enabledLocales)}
+                initialLocale={
+                  // 'auto' is valid only when selecting the input language,
+                  // for output (view) language it doesn't make sense.
+                  (activeLocale !== 'auto' && activeLocale) || mostSimilarLanguage(currentLocale, enabledLocales)
+                }
                 intl={intl}
               />
             </SettingsProvider>,
@@ -97,10 +117,14 @@ export function LiveTranscriptionPlugin(
       });
     }
     if (!isMod && transcriptionStarted) {
-      pluginLogger.debug('Initializing sidekick panel for viewers', { logCode: 'live_transcription_init_viewer_panel', extraInfo: { uuid, intl, activeLocale } });
+      pluginLogger.debug('Initializing sidekick panel for viewers', { logCode: 'live_transcription_init_viewer_panel', extraInfo: { uuid, intl: intl.locale, activeLocale } });
       sidekickPanel = new GenericContentSidekickArea({
         id: `live-transcription-${uuid}`,
-        name: intl.formatMessage(intlMessages.sidekickButtonTitle),
+        name: intl.formatMessage(
+          isGladia(provider)
+            ? intlMessages.sidekickButtonTitleTranslation
+            : intlMessages.sidekickButtonTitle,
+        ),
         buttonIcon: 'closed_caption',
         section: intl.formatMessage(intlMessages.sidekickSectionName),
         open: true,
@@ -110,7 +134,11 @@ export function LiveTranscriptionPlugin(
             <SettingsProvider pluginApi={pluginApi}>
               <StartedLiveTranscription
                 pluginApi={pluginApi}
-                locale={currentLocale}
+                locale={
+                  // 'auto' is valid only when selecting the input language,
+                  // for output (view) language it doesn't make sense.
+                  (activeLocale !== 'auto' && activeLocale) || mostSimilarLanguage(currentLocale, enabledLocales)
+                }
                 intl={intl}
               />
             </SettingsProvider>,
@@ -120,7 +148,15 @@ export function LiveTranscriptionPlugin(
       });
     }
     if (sidekickPanel) pluginApi.setGenericContentItems([sidekickPanel]);
-  }, [currentLocale, localeMessages, requiredFeaturesEnabled, transcriptionStarted, isMod]);
+  }, [
+    currentLocale,
+    localeMessages,
+    requiredFeaturesEnabled,
+    transcriptionStarted,
+    isMod,
+    provider,
+    activeLocale,
+  ]);
 
   return null;
 }

@@ -7,6 +7,8 @@ interface LiveTranscriptionStore {
   setStarted: (started: boolean) => void;
   loadSince: string;
   setLoadSince: (since: string) => void;
+  currentLocale: string;
+  setCurrentLocale: (locale: string) => void;
 }
 
 export const useLiveTranscriptionStore = create<LiveTranscriptionStore>((set) => ({
@@ -16,4 +18,6 @@ export const useLiveTranscriptionStore = create<LiveTranscriptionStore>((set) =>
   setStarted: (started) => set({ started }),
   loadSince: new Date(0).toISOString(), // default to epoch time to load all captions
   setLoadSince: (since) => set({ loadSince: since }),
+  currentLocale: '',
+  setCurrentLocale: (locale) => set({ currentLocale: locale }),
 }));
