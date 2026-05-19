@@ -16,8 +16,10 @@ export const getLocaleName = (locale: string) => {
 };
 
 export const mostSimilarLanguage = (targetLanguage: string, availableLanguages: string[]) => {
+  pluginLogger.debug('Finding most similar language', { logCode: 'live_transcription_find_similar_language', extraInfo: { targetLanguage, availableLanguages } });
   // First, check if there is an exact match in the available locales
   if (availableLanguages.includes(targetLanguage)) {
+    pluginLogger.debug('Exact language match found', { logCode: 'live_transcription_exact_language_match', extraInfo: { targetLanguage } });
     return targetLanguage;
   }
 
@@ -28,9 +30,13 @@ export const mostSimilarLanguage = (targetLanguage: string, availableLanguages: 
   let matchedLocale = availableLanguages[0];
   availableLanguages.forEach((locale) => {
     if (locale.startsWith(languageCode)) {
+      pluginLogger.debug('Falling back to similar language', { logCode: 'live_transcription_fallback_similar_language', extraInfo: { targetLanguage, matchedLocale: locale } });
       matchedLocale = locale;
     }
   });
 
   return matchedLocale;
 };
+
+export const isWebSpeech = (provider: string) => provider.toLowerCase() === 'webspeech';
+export const isGladia = (provider: string) => provider.toLowerCase() === 'gladia';

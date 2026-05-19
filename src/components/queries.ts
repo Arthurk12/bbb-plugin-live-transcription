@@ -6,6 +6,14 @@ export const GET_MEETING_DISABLED_FEATURES = `
   }
 `;
 
+export const GET_CAPTION_ACTIVE_LOCALES = `
+  subscription getCaptionActiveLocales {
+    caption_activeLocales {
+      locale
+    }
+  }
+`;
+
 const CAPTION_HISTORY_FIELDS = `
   user {
     avatar

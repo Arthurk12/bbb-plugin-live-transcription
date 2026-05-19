@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-// import { Icon } from '@mui/material';
 import {
   colorWhite,
   colorNeutral4,
@@ -98,11 +97,18 @@ export const ScrollButton = styled.div`
 export const HeaderToolbar = styled.div`
   padding: ${space2} ${space6};
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
   border-bottom: 1px solid ${colorNeutral4};
   gap: ${space2};
   overflow: visible;
+`;
+
+export const HeaderToolbarRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: ${space2};
 `;
 
 export const HeaderToolbarGroup = styled.div`

@@ -6,18 +6,24 @@ import React, {
 import { IntlShape, defineMessages } from 'react-intl';
 import { MenuItem } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
-import { BBBSelect, BBButton, BBBTypography } from '@mconf/bbb-ui-components-react';
+import {
+  BBBSelect,
+  BBButton,
+  BBBTypography,
+  BBBHint,
+} from '@mconf/bbb-ui-components-react';
 import { DataChannelTypes, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
 import { DataChannelResponse } from '../types';
 import { StartedLiveTranscription } from '../started-live-transcription/component';
-import { getLocaleName } from '../../service';
+import { getLocaleName, isGladia, isWebSpeech } from '../../service';
 import { useLiveTranscriptionStore } from '../../context';
 import {
   useEnabledLocales,
   usePanelImageUrl,
   useTermsOfUseUrl,
   usePrivacyPolicyUrl,
+  useSpeechProvider,
 } from '../../context/settings/context';
 import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../../index';
 
@@ -78,6 +84,11 @@ const intlMessages = defineMessages({
     description: 'Title of the live transcription panel',
     defaultMessage: 'Transcribe your meeting in real time',
   },
+  titleTranslation: {
+    id: 'panel.content.title.translation',
+    description: 'Title of the live transcription panel when translation is supported',
+    defaultMessage: 'Transcribe and translate your meeting in real time',
+  },
   description: {
     id: 'panel.content.description',
     description: 'Description of the live transcription panel',
@@ -93,10 +104,35 @@ const intlMessages = defineMessages({
     description: 'Label for the locale selector',
     defaultMessage: 'Language',
   },
-  startButtonTooltip: {
-    id: 'panel.content.startButton.tooltip',
-    description: 'Tooltip shown on the start button',
-    defaultMessage: 'Start live transcription with the selected language',
+  spokenLocaleSelectorLabel: {
+    id: 'panel.content.localeSelector.spokenLabel',
+    description: 'Label for the locale selector when translation is available (Gladia)',
+    defaultMessage: 'Spoken language',
+  },
+  startButtonTooltipWebspeech: {
+    id: 'panel.content.startButton.tooltip.webspeech',
+    description: 'Tooltip shown on the start button when webspeech provider is selected',
+    defaultMessage: 'Start live transcription with the selected language - your browser support for this feature will be used',
+  },
+  startButtonTooltipOther: {
+    id: 'panel.content.startButton.tooltip.other',
+    description: 'Tooltip shown on the start button when a different provider is selected',
+    defaultMessage: 'Start live transcription - it will be enabled for everyone in the meeting',
+  },
+  autoDetectLocale: {
+    id: 'panel.content.localeSelector.autoDetect',
+    description: 'Label for the auto-detect option in the locale selector',
+    defaultMessage: 'Auto-detect',
+  },
+  translationHintTitle: {
+    id: 'panel.content.translationHint.title',
+    description: 'Title of the hint about real-time translation availability',
+    defaultMessage: 'Real-time translation available!',
+  },
+  translationHintLabel: {
+    id: 'panel.content.translationHint.label',
+    description: 'Description of the hint about real-time translation availability',
+    defaultMessage: 'After starting, you can choose a display language to follow the transcription translated in real time.',
   },
 });
 
@@ -110,7 +146,9 @@ export function LiveTranscriptionPanel({
   const panelImageUrl = usePanelImageUrl();
   const termsOfUseUrl = useTermsOfUseUrl();
   const privacyPolicyUrl = usePrivacyPolicyUrl();
-  const [selectedLocale, setSelectedLocale] = useState<string>(initialLocale ?? '');
+  const provider = useSpeechProvider();
+  const [selectedLocale, setSelectedLocale] = useState<string>(isGladia(provider) ? 'auto' : initialLocale ?? '');
+  const [hintClosed, setHintClosed] = useState(false);
 
   const {
     pushEntry: dataChannelPushEntry,
@@ -150,7 +188,9 @@ export function LiveTranscriptionPanel({
           </Styled.IllustrationWrapper>
 
           <BBBTypography variant="header">
-            {intl.formatMessage(intlMessages.title)}
+            {isGladia(provider)
+              ? intl.formatMessage(intlMessages.titleTranslation)
+              : intl.formatMessage(intlMessages.title)}
           </BBBTypography>
         </div>
 
@@ -167,14 +207,26 @@ export function LiveTranscriptionPanel({
       </Styled.Content>
 
       <Styled.Footer>
+        {isGladia(provider) && !hintClosed && (
+          <BBBHint
+            title={intl.formatMessage(intlMessages.translationHintTitle)}
+            label={intl.formatMessage(intlMessages.translationHintLabel)}
+            onRequestClose={() => setHintClosed(true)}
+          />
+        )}
         {enabledLocales && enabledLocales.length > 0 && (
           <BBBSelect
             id="transcription-locale-select"
             value={selectedLocale}
-            title={intl.formatMessage(intlMessages.localeSelectorLabel)}
+            title={intl.formatMessage(
+              isGladia(provider)
+                ? intlMessages.spokenLocaleSelectorLabel
+                : intlMessages.localeSelectorLabel,
+            )}
             onChange={handleChangeLocale}
             fullWidth
           >
+            {isGladia(provider) && <MenuItem key="auto" value="auto">{intl.formatMessage(intlMessages.autoDetectLocale)}</MenuItem>}
             {enabledLocales.map((locale) => (
               <MenuItem key={locale} value={locale}>
                 {getLocaleName(locale)}
@@ -187,7 +239,11 @@ export function LiveTranscriptionPanel({
           label={intl.formatMessage(intlMessages.startButton)}
           variant="primary"
           onClick={handleStartTranscription}
-          tooltipLabel={intl.formatMessage(intlMessages.startButtonTooltip)}
+          tooltipLabel={intl.formatMessage(
+            isWebSpeech(provider)
+              ? intlMessages.startButtonTooltipWebspeech
+              : intlMessages.startButtonTooltipOther,
+          )}
         />
       </Styled.Footer>
     </Styled.Container>

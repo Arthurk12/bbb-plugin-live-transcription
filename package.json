@@ -12,7 +12,9 @@
     "react-dom": "^18.2.0",
     "react-intl": "^6.6.8",
     "styled-components": "^5.3.3",
-    "zustand": "^5.0.13"
+    "zustand": "^5.0.13",
+    "@mui/icons-material": "7.3.1",
+    "@mui/material": "7.3.1"
   },
   "scripts": {
     "build-bundle": "webpack --mode production",

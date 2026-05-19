@@ -6,6 +6,7 @@ import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../index';
 import { useLiveTranscriptionStore } from '../context';
 import { useSpeechProvider } from '../context/settings/context';
 import { hasSpeechRecognitionSupport } from './service';
+import { isWebSpeech } from '../service';
 
 const useEnableTranscription = (pluginApi: PluginApi, isMod: boolean) => {
   const { setStarted, setActiveLocale } = useLiveTranscriptionStore();
@@ -39,7 +40,7 @@ const useEnableTranscription = (pluginApi: PluginApi, isMod: boolean) => {
     }
     setStarted(shouldEnableTranscription);
     setActiveLocale(dataChannelLocale as string);
-    if (provider === 'webspeech' && !hasSpeechRecognitionSupport()) {
+    if (isWebSpeech(provider) && !hasSpeechRecognitionSupport()) {
       pluginLogger.error('Browser does not support Web Speech API but provider is set to webspeech', { logCode: 'live_transcription_webspeech_unsupported' });
       return;
     }
