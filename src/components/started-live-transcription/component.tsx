@@ -236,8 +236,8 @@ export function StartedLiveTranscription({
     if (!captionActiveLocalesResult) return [];
     return captionActiveLocalesResult.caption_activeLocales
       .map((l) => l.locale)
-      .filter((l) => l !== '' && l !== 'auto' && l !== viewLocale);
-  }, [captionActiveLocalesResult, viewLocale]);
+      .filter((l) => l !== '' && l !== 'auto' && l !== locale);
+  }, [captionActiveLocalesResult, locale]);
 
   const {
     data: captions,
@@ -311,7 +311,6 @@ export function StartedLiveTranscription({
     setIsAtBottom(nearBottom);
   }, []);
 
-  console.log('captions: ', captions);
   const nothingToShow = (captions?.caption_history.length ?? 0) === 0;
 
   pluginLogger.debug('Rendering captions panel', {
