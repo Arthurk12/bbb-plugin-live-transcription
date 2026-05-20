@@ -1,5 +1,8 @@
-import { useEffect } from 'react';
-import { PluginApi, DataChannelTypes } from 'bigbluebutton-html-plugin-sdk';
+import { useEffect, useRef } from 'react';
+import { IntlShape, defineMessages } from 'react-intl';
+import {
+  PluginApi, DataChannelTypes, NotificationTypeUiCommand,
+} from 'bigbluebutton-html-plugin-sdk';
 import { SET_SPEECH_LOCALE } from '../components/queries';
 import { DataChannelResponse, SetSpeechLocaleMutation } from '../components/types';
 import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../index';
@@ -8,8 +11,17 @@ import { useSpeechProvider } from '../context/settings/context';
 import { hasSpeechRecognitionSupport } from './service';
 import { isWebSpeech } from '../service';
 
-const useEnableTranscription = (pluginApi: PluginApi, isMod: boolean) => {
+const intlMessages = defineMessages({
+  transcriptionEnabled: {
+    id: 'live_transcription.notification.enabled',
+    description: 'Notification shown when live transcription is enabled for the room',
+    defaultMessage: 'Real-time transcription has been enabled for the room. Access the transcription panel in the apps gallery.',
+  },
+});
+
+const useEnableTranscription = (pluginApi: PluginApi, isMod: boolean, intl: IntlShape) => {
   const { setStarted, setActiveLocale } = useLiveTranscriptionStore();
+  const wasEnabledRef = useRef(false);
   const [setSpeechLocale, result] = pluginApi.useCustomMutation!<
     SetSpeechLocaleMutation>(SET_SPEECH_LOCALE);
   const provider = useSpeechProvider();
@@ -45,6 +57,14 @@ const useEnableTranscription = (pluginApi: PluginApi, isMod: boolean) => {
     }
     setStarted(shouldEnableTranscription);
     setActiveLocale(newLocale as string);
+    if (!wasEnabledRef.current && shouldEnableTranscription) {
+      pluginApi.uiCommands?.notification.send({
+        message: intl.formatMessage(intlMessages.transcriptionEnabled),
+        icon: 'closed_caption',
+        type: NotificationTypeUiCommand.INFO,
+      });
+    }
+    wasEnabledRef.current = shouldEnableTranscription;
     if (isWebSpeech(provider) && !hasSpeechRecognitionSupport()) {
       pluginLogger.error('Browser does not support Web Speech API but provider is set to webspeech', { logCode: 'live_transcription_webspeech_unsupported' });
       return;

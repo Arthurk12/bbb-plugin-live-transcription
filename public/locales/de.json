@@ -43,5 +43,6 @@
   "sidekick.panel.fontSettings.section.background": "Hintergrund",
   "sidekick.panel.fontSettings.section.showName": "Name",
   "sidekick.panel.fontSettings.section.layout": "Anordnung",
-  "sidekick.panel.viewLocaleSelector.label": "Anzeigesprache"
+  "sidekick.panel.viewLocaleSelector.label": "Anzeigesprache",
+  "live_transcription.notification.enabled": "Die Echtzeit-Transkription wurde für den Raum aktiviert. Öffnen Sie das Transkriptions-Panel in der App-Galerie."
 }

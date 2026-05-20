@@ -43,5 +43,6 @@
   "sidekick.panel.fontSettings.section.background": "Sfondo",
   "sidekick.panel.fontSettings.section.showName": "Nome",
   "sidekick.panel.fontSettings.section.layout": "Disposizione",
-  "sidekick.panel.viewLocaleSelector.label": "Lingua di visualizzazione"
+  "sidekick.panel.viewLocaleSelector.label": "Lingua di visualizzazione",
+  "live_transcription.notification.enabled": "La trascrizione in tempo reale è stata abilitata per la stanza. Accedi al pannello di trascrizione nella galleria delle app."
 }
