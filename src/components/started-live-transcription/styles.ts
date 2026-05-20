@@ -197,6 +197,17 @@ export const ButtonHeaderWrapper = styled.div`
   color: ${colorPrimary};
 `;
 
+export const LocaleSelectorRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: ${space2};
+
+  & > * {
+    flex: 1;
+    min-width: 0;
+  }
+`;
+
 export const ButtonHeaderSpacer = styled.div`
   flex: 1;
 `;

@@ -75,7 +75,8 @@ export function LiveTranscriptionPlugin(
   } = currentUser || {};
   const isMod = !currentUserLoading && currentUserData && currentUserData.role === 'MODERATOR';
 
-  const transcriptionStarted = useEnableTranscription(pluginApi, Boolean(isMod));
+  const fallbackIntl = intl ?? createIntl({ locale: currentLocale }, createIntlCache());
+  const transcriptionStarted = useEnableTranscription(pluginApi, Boolean(isMod), fallbackIntl);
 
   useEffect(() => {
     pluginLogger.debug('Updating current locale in store', { logCode: 'live_transcription_update_current_locale', extraInfo: { currentLocale } });

@@ -3,6 +3,7 @@ import {
   ReactNode, useEffect, useLayoutEffect, useRef, useState, useCallback,
 } from 'react';
 import { IntlShape, defineMessages } from 'react-intl';
+import { DataChannelTypes, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import {
   History as MDHistoryIcon,
   ContentCopy as MDContentCopyIcon,
@@ -11,58 +12,29 @@ import {
   Edit as MDEditIcon,
 } from '@mui/icons-material';
 import { MenuItem } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import {
   BBBTypography, BBButton, BBBToggle, BBBAccordion, BBBSelect,
 } from '@mconf/bbb-ui-components-react';
-import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
-import { CaptionActiveLocaleGraphqlResponse, CaptionGraphqlResult } from '../types';
-import { GET_CAPTION_ACTIVE_LOCALES, GET_CAPTIONS_SINCE } from '../queries';
-import { Username } from '../username/component';
-import { EmptyState } from '../empty-state/component';
+import { CaptionActiveLocaleGraphqlResponse, DataChannelResponse } from '../types';
+import { GET_CAPTION_ACTIVE_LOCALES } from '../queries';
+
 import { getLocaleName, isGladia, mostSimilarLanguage } from '../../service';
 import {
-  FloatingCaptionsWindow,
   FloatingCaptionsFontSettings,
   FloatingCaptionsSplitSettings,
-  OutlineStyle,
 } from '../floating-captions/component';
-import { pluginLogger } from '../../index';
+import {
+  DEFAULT_FONT_SETTINGS,
+  DEFAULT_SPLIT_SETTINGS,
+  FONT_OPTIONS,
+  OUTLINE_STYLE_OPTIONS,
+} from '../../constants';
+import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../../index';
 import { useLiveTranscriptionStore } from '../../context';
 import { useEnabledLocales, useSpeechProvider } from '../../context/settings/context';
-
-const FONT_OPTIONS = [
-  { label: 'Inter', value: 'Inter, sans-serif' },
-  { label: 'Merriweather', value: 'Merriweather, serif' },
-  { label: 'Roboto Mono', value: 'Roboto Mono, monospace' },
-  { label: 'Nunito', value: 'Nunito, sans-serif' },
-];
-
-const OUTLINE_STYLE_OPTIONS: { label: string; value: OutlineStyle }[] = [
-  { label: 'None', value: 'none' },
-  { label: 'Outline', value: 'outline' },
-  { label: 'Shadow', value: 'shadow' },
-  { label: 'Glow', value: 'glow' },
-];
-
-const DEFAULT_FONT_SETTINGS: FloatingCaptionsFontSettings = {
-  fontSize: 15,
-  fontWeight: 'normal',
-  fontColor: '#000000',
-  showUserName: true,
-  fontFamily: 'Inter, sans-serif',
-  userNameColor: '#6366f1',
-  userNameBold: true,
-  outlineColor: '#000000',
-  outlineStyle: 'none',
-  outlineSize: 2,
-  backgroundColor: '#ffffff',
-};
-
-const DEFAULT_SPLIT_SETTINGS: FloatingCaptionsSplitSettings = {
-  lineLimit: 60,
-  linesPerMessage: 2,
-};
+import { TranscriptionVisualizer } from '../transcription-visualizer/component';
 
 interface LiveTranscriptionPanelProps {
   pluginApi: NonNullable<PluginApi>;
@@ -71,15 +43,20 @@ interface LiveTranscriptionPanelProps {
 }
 
 const intlMessages = defineMessages({
+  spokenLocaleSelectorLabel: {
+    id: 'panel.content.localeSelector.spokenLabel',
+    description: 'Label for the locale selector when translation is available (Gladia)',
+    defaultMessage: 'Spoken language',
+  },
   viewLocaleSelectorLabel: {
     id: 'sidekick.panel.viewLocaleSelector.label',
     description: 'Label for the view language selector in the started panel',
     defaultMessage: 'View language',
   },
-  scrollButtonLabel: {
-    id: 'sidekick.panel.scrollButton.label',
-    description: 'Label for the "Scroll to latest" button',
-    defaultMessage: 'Scroll to latest',
+  autoDetectLocale: {
+    id: 'panel.content.localeSelector.autoDetect',
+    description: 'Label for the auto-detect option in the locale selector',
+    defaultMessage: 'Auto-detect',
   },
   clearButtonlabel: {
     id: 'sidekick.panel.clearButton.label',
@@ -208,10 +185,7 @@ export function StartedLiveTranscription({
   locale,
   intl,
 }: LiveTranscriptionPanelProps): ReactNode {
-  const containerRef = useRef<HTMLDivElement>(null);
   const captionsTextRef = useRef('');
-  const toolbarRef = useRef<HTMLDivElement>(null);
-  const [isAtBottom, setIsAtBottom] = useState(true);
   const { loadSince, setLoadSince, currentLocale } = useLiveTranscriptionStore((s) => s);
   const enabledLocales = useEnabledLocales();
   const provider = useSpeechProvider();
@@ -222,12 +196,30 @@ export function StartedLiveTranscription({
     FloatingCaptionsSplitSettings>(DEFAULT_SPLIT_SETTINGS);
   const [viewLocale, setViewLocale] = useState<string>(locale === 'auto'
     ? mostSimilarLanguage(currentLocale, enabledLocales) : locale);
+  const [spokenLocale, setSpokenLocale] = useState<string>(locale);
   // Force a re-render after DOM commit so BBBAccordion re-measures its content
   // height when conditional rows (showUserName, outlineStyle) are toggled.
   const [, setAccordionTick] = useState(0);
   useLayoutEffect(() => {
     setAccordionTick((n) => n + 1);
   }, [fontSettings.showUserName, fontSettings.outlineStyle]);
+
+  const currentUser = pluginApi.useCurrentUser!();
+  const { data: currentUserData, loading: currentUserLoading } = currentUser || {};
+  const isMod = !currentUserLoading && currentUserData && currentUserData.role === 'MODERATOR';
+
+  const {
+    pushEntry: dataChannelPushEntry,
+  } = pluginApi.useDataChannel!<DataChannelResponse>(
+    LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME,
+    DataChannelTypes.LATEST_ITEM,
+  );
+
+  const handleChangeSpokenLocale = useCallback((e: SelectChangeEvent<unknown>) => {
+    const newLocale = e.target.value as string;
+    setSpokenLocale(newLocale);
+    dataChannelPushEntry({ state: 'started', locale: newLocale });
+  }, [dataChannelPushEntry]);
 
   const { data: captionActiveLocalesResult } = pluginApi.useCustomSubscription!<
     CaptionActiveLocaleGraphqlResponse>(GET_CAPTION_ACTIVE_LOCALES);
@@ -236,41 +228,8 @@ export function StartedLiveTranscription({
     if (!captionActiveLocalesResult) return [];
     return captionActiveLocalesResult.caption_activeLocales
       .map((l) => l.locale)
-      .filter((l) => l !== '' && l !== 'auto' && l !== viewLocale);
-  }, [captionActiveLocalesResult, viewLocale]);
-
-  const {
-    data: captions,
-    loading: captionsLoading,
-  } = pluginApi.useCustomSubscription!<CaptionGraphqlResult>(
-    GET_CAPTIONS_SINCE,
-    {
-      variables: {
-        locale: viewLocale,
-        since: loadSince,
-      },
-    },
-  );
-
-  useEffect(() => {
-    pluginLogger.debug('Captions subscription update', {
-      logCode: 'live_transcription_captions_update',
-      extraInfo: {
-        captions,
-        locale: viewLocale,
-        captionsLoading,
-        loadSince,
-      },
-    });
-  }, [captions, captionsLoading, viewLocale, loadSince]);
-
-  const scrollToBottom = useCallback(() => {
-    const container = containerRef.current;
-    if (container) {
-      // column-reverse: scrollTop = 0 is the bottom of the container
-      container.scrollTop = 0;
-    }
-  }, []);
+      .filter((l) => l !== '' && l !== 'auto' && l !== locale);
+  }, [captionActiveLocalesResult, locale]);
 
   const handleClearCaptions = useCallback(() => {
     const timestamp = new Date().toISOString();
@@ -284,89 +243,66 @@ export function StartedLiveTranscription({
   }, []);
 
   useEffect(() => {
-    if (isAtBottom) {
-      scrollToBottom();
-    }
-  }, [captions, locale, scrollToBottom]);
-
-  useEffect(() => {
-    const text = captions?.caption_history?.map(
-      (c) => `${c.user.name} (${new Date(c.createdAt).toLocaleTimeString()}): ${c.captionText}`,
-    ).join('\n') ?? '';
-    captionsTextRef.current = text;
-  }, [captions]);
-
-  useEffect(() => {
     pluginLogger.debug('Captions active locales update', {
       logCode: 'live_transcription_active_locales_update',
       extraInfo: { otherLocales, locale, viewLocale },
     });
   }, [otherLocales, locale, viewLocale]);
 
-  const handleScroll = useCallback(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const nearBottom = container.scrollTop >= -50;
-    setIsAtBottom(nearBottom);
-  }, []);
-
-  const nothingToShow = captions?.caption_history.length === 0;
-
-  pluginLogger.debug('Rendering captions panel', {
-    logCode: 'live_transcription_render_captions',
-    extraInfo: {
-      locale: viewLocale,
-      captionCount: captions?.caption_history?.length ?? 0,
-      isAtBottom,
-      nothingToShow,
-    },
-  });
-  const floatingCaptionEntries = (captions?.caption_history ?? []).map((c) => ({
-    captionId: c.captionId,
-    captionText: c.captionText,
-    userName: c.user.name,
-    userColor: c.user.color,
-    userAvatar: c.user.avatar,
-  }));
-
-  const viewLocaleSelectorVisible = otherLocales.length > 0;
-
-  if (nothingToShow) {
-    return <EmptyState intl={intl} />;
-  }
+  const viewLocaleSelectorVisible = isGladia(provider) && otherLocales.length > 0;
 
   return (
     <Styled.Container>
 
-      {floatingOpen && (
-        <FloatingCaptionsWindow
-          captions={floatingCaptionEntries}
-          locale={locale}
-          fontSettings={fontSettings}
-          splitSettings={splitSettings}
-          onClose={() => setFloatingOpen(false)}
-        />
-      )}
-      <Styled.HeaderToolbar ref={toolbarRef}>
-        {isGladia(provider) && viewLocaleSelectorVisible && (
-          <BBBSelect
-            id="view-locale-select"
-            value={viewLocale}
-            title={intl.formatMessage(intlMessages.viewLocaleSelectorLabel)}
-            onChange={(e) => setViewLocale(e.target.value as string)}
-            fullWidth
-          >
-            <MenuItem key={locale} value={locale}>
-              {getLocaleName(locale)}
-            </MenuItem>
-            {otherLocales.map((l) => (
-              <MenuItem key={l} value={l}>
-                {getLocaleName(l)}
+      <Styled.HeaderToolbar>
+        <Styled.LocaleSelectorRow>
+          {isMod && (
+            <BBBSelect
+              id="spoken-locale-select"
+              value={spokenLocale}
+              title={intl.formatMessage(intlMessages.spokenLocaleSelectorLabel)}
+              onChange={handleChangeSpokenLocale}
+              fullWidth
+            >
+              {isGladia(provider)
+                && (
+                <MenuItem key="auto" value="auto">
+                  {intl.formatMessage(intlMessages.autoDetectLocale)}
+                </MenuItem>
+                )}
+              {enabledLocales.map((l) => (
+                <MenuItem key={l} value={l}>
+                  {getLocaleName(l)}
+                </MenuItem>
+              ))}
+            </BBBSelect>
+          )}
+          {viewLocaleSelectorVisible && (
+            <BBBSelect
+              id="view-locale-select"
+              value={viewLocale}
+              title={intl.formatMessage(intlMessages.viewLocaleSelectorLabel)}
+              onChange={(e) => {
+                setViewLocale(e.target.value as string);
+                if (!isGladia(provider)) {
+                  // When translation is not enabled, lock the spoken locale to
+                  // the view locale to avoid confusion.
+                  setSpokenLocale(e.target.value as string);
+                }
+              }}
+              fullWidth
+            >
+              <MenuItem key={locale} value={locale}>
+                {getLocaleName(locale)}
               </MenuItem>
-            ))}
-          </BBBSelect>
-        )}
+              {otherLocales.map((l) => (
+                <MenuItem key={l} value={l}>
+                  {getLocaleName(l)}
+                </MenuItem>
+              ))}
+            </BBBSelect>
+          )}
+        </Styled.LocaleSelectorRow>
         <Styled.HeaderToolbarRow>
           <Styled.HeaderToolbarGroup>
             <BBButton
@@ -661,41 +597,18 @@ export function StartedLiveTranscription({
 
         </Styled.SettingsPanel>
       </BBBAccordion>
-      <Styled.SettingsDivider />
-      <Styled.ScrollAreaWrapper>
-        <Styled.ScrollArea ref={containerRef} onScroll={handleScroll}>
-          <Styled.ScrollAreaSpacer />
-          {captions?.caption_history?.map((c) => (
-            <Styled.CaptionRow
-              key={c.captionId}
-            >
-              <Styled.Timestamp>
-                <BBBTypography variant="text2">
-                  {intl.formatTime(c.createdAt)}
-                </BBBTypography>
-              </Styled.Timestamp>
-              <Styled.CaptionContent>
-                <Username
-                  intl={intl}
-                  user={c.user}
-                />
-                <BBBTypography>{c.captionText}</BBBTypography>
-              </Styled.CaptionContent>
-            </Styled.CaptionRow>
-          ))}
-        </Styled.ScrollArea>
-
-        {!isAtBottom && (
-          <Styled.ScrollButton>
-            <BBButton
-              label={intl.formatMessage(intlMessages.scrollButtonLabel)}
-              variant="primary"
-              size="sm"
-              onClick={scrollToBottom}
-            />
-          </Styled.ScrollButton>
-        )}
-      </Styled.ScrollAreaWrapper>
+      <TranscriptionVisualizer
+        pluginApi={pluginApi}
+        locale={locale}
+        viewLocale={viewLocale}
+        loadSince={loadSince}
+        intl={intl}
+        captionsTextRef={captionsTextRef}
+        floatingOpen={floatingOpen}
+        fontSettings={fontSettings}
+        splitSettings={splitSettings}
+        onFloatingClose={() => setFloatingOpen(false)}
+      />
     </Styled.Container>
   );
 }

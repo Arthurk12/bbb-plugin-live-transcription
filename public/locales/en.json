@@ -43,5 +43,6 @@
   "sidekick.panel.fontSettings.section.background": "Background",
   "sidekick.panel.fontSettings.section.showName": "Name",
   "sidekick.panel.fontSettings.section.layout": "Layout",
-  "sidekick.panel.viewLocaleSelector.label": "View language"
+  "sidekick.panel.viewLocaleSelector.label": "View language",
+  "live_transcription.notification.enabled": "Real-time transcription has been enabled for the room. Access the transcription panel in the apps gallery."
 }
