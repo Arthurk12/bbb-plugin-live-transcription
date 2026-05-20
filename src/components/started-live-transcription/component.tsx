@@ -3,6 +3,7 @@ import {
   ReactNode, useEffect, useLayoutEffect, useRef, useState, useCallback,
 } from 'react';
 import { IntlShape, defineMessages } from 'react-intl';
+import { DataChannelTypes, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import {
   History as MDHistoryIcon,
   ContentCopy as MDContentCopyIcon,
@@ -11,12 +12,12 @@ import {
   Edit as MDEditIcon,
 } from '@mui/icons-material';
 import { MenuItem } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import {
   BBBTypography, BBButton, BBBToggle, BBBAccordion, BBBSelect,
 } from '@mconf/bbb-ui-components-react';
-import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
-import { CaptionActiveLocaleGraphqlResponse, CaptionGraphqlResult } from '../types';
+import { CaptionActiveLocaleGraphqlResponse, CaptionGraphqlResult, DataChannelResponse } from '../types';
 import { GET_CAPTION_ACTIVE_LOCALES, GET_CAPTIONS_SINCE } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
@@ -27,7 +28,7 @@ import {
   FloatingCaptionsSplitSettings,
   OutlineStyle,
 } from '../floating-captions/component';
-import { pluginLogger } from '../../index';
+import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../../index';
 import { useLiveTranscriptionStore } from '../../context';
 import { useEnabledLocales, useSpeechProvider } from '../../context/settings/context';
 
@@ -71,10 +72,20 @@ interface LiveTranscriptionPanelProps {
 }
 
 const intlMessages = defineMessages({
+  spokenLocaleSelectorLabel: {
+    id: 'panel.content.localeSelector.spokenLabel',
+    description: 'Label for the locale selector when translation is available (Gladia)',
+    defaultMessage: 'Spoken language',
+  },
   viewLocaleSelectorLabel: {
     id: 'sidekick.panel.viewLocaleSelector.label',
     description: 'Label for the view language selector in the started panel',
     defaultMessage: 'View language',
+  },
+  autoDetectLocale: {
+    id: 'panel.content.localeSelector.autoDetect',
+    description: 'Label for the auto-detect option in the locale selector',
+    defaultMessage: 'Auto-detect',
   },
   scrollButtonLabel: {
     id: 'sidekick.panel.scrollButton.label',
@@ -222,12 +233,30 @@ export function StartedLiveTranscription({
     FloatingCaptionsSplitSettings>(DEFAULT_SPLIT_SETTINGS);
   const [viewLocale, setViewLocale] = useState<string>(locale === 'auto'
     ? mostSimilarLanguage(currentLocale, enabledLocales) : locale);
+  const [spokenLocale, setSpokenLocale] = useState<string>(locale);
   // Force a re-render after DOM commit so BBBAccordion re-measures its content
   // height when conditional rows (showUserName, outlineStyle) are toggled.
   const [, setAccordionTick] = useState(0);
   useLayoutEffect(() => {
     setAccordionTick((n) => n + 1);
   }, [fontSettings.showUserName, fontSettings.outlineStyle]);
+
+  const currentUser = pluginApi.useCurrentUser!();
+  const { data: currentUserData, loading: currentUserLoading } = currentUser || {};
+  const isMod = !currentUserLoading && currentUserData && currentUserData.role === 'MODERATOR';
+
+  const {
+    pushEntry: dataChannelPushEntry,
+  } = pluginApi.useDataChannel!<DataChannelResponse>(
+    LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME,
+    DataChannelTypes.LATEST_ITEM,
+  );
+
+  const handleChangeSpokenLocale = useCallback((e: SelectChangeEvent<unknown>) => {
+    const newLocale = e.target.value as string;
+    setSpokenLocale(newLocale);
+    dataChannelPushEntry({ state: 'started', locale: newLocale });
+  }, [dataChannelPushEntry]);
 
   const { data: captionActiveLocalesResult } = pluginApi.useCustomSubscription!<
     CaptionActiveLocaleGraphqlResponse>(GET_CAPTION_ACTIVE_LOCALES);
@@ -330,7 +359,7 @@ export function StartedLiveTranscription({
     userAvatar: c.user.avatar,
   }));
 
-  const viewLocaleSelectorVisible = otherLocales.length > 0;
+  const viewLocaleSelectorVisible = isGladia(provider) && otherLocales.length > 0;
 
   if (nothingToShow) {
     return <EmptyState intl={intl} />;
@@ -349,24 +378,54 @@ export function StartedLiveTranscription({
         />
       )}
       <Styled.HeaderToolbar ref={toolbarRef}>
-        {isGladia(provider) && viewLocaleSelectorVisible && (
-          <BBBSelect
-            id="view-locale-select"
-            value={viewLocale}
-            title={intl.formatMessage(intlMessages.viewLocaleSelectorLabel)}
-            onChange={(e) => setViewLocale(e.target.value as string)}
-            fullWidth
-          >
-            <MenuItem key={locale} value={locale}>
-              {getLocaleName(locale)}
-            </MenuItem>
-            {otherLocales.map((l) => (
-              <MenuItem key={l} value={l}>
-                {getLocaleName(l)}
+        <Styled.LocaleSelectorRow>
+          {isMod && (
+            <BBBSelect
+              id="spoken-locale-select"
+              value={spokenLocale}
+              title={intl.formatMessage(intlMessages.spokenLocaleSelectorLabel)}
+              onChange={handleChangeSpokenLocale}
+              fullWidth
+            >
+              {isGladia(provider)
+                && (
+                <MenuItem key="auto" value="auto">
+                  {intl.formatMessage(intlMessages.autoDetectLocale)}
+                </MenuItem>
+                )}
+              {enabledLocales.map((l) => (
+                <MenuItem key={l} value={l}>
+                  {getLocaleName(l)}
+                </MenuItem>
+              ))}
+            </BBBSelect>
+          )}
+          {viewLocaleSelectorVisible && (
+            <BBBSelect
+              id="view-locale-select"
+              value={viewLocale}
+              title={intl.formatMessage(intlMessages.viewLocaleSelectorLabel)}
+              onChange={(e) => {
+                setViewLocale(e.target.value as string);
+                if (!isGladia(provider)) {
+                  // When translation is not enabled, lock the spoken locale to
+                  // the view locale to avoid confusion.
+                  setSpokenLocale(e.target.value as string);
+                }
+              }}
+              fullWidth
+            >
+              <MenuItem key={locale} value={locale}>
+                {getLocaleName(locale)}
               </MenuItem>
-            ))}
-          </BBBSelect>
-        )}
+              {otherLocales.map((l) => (
+                <MenuItem key={l} value={l}>
+                  {getLocaleName(l)}
+                </MenuItem>
+              ))}
+            </BBBSelect>
+          )}
+        </Styled.LocaleSelectorRow>
         <Styled.HeaderToolbarRow>
           <Styled.HeaderToolbarGroup>
             <BBButton
