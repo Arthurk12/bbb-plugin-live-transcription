@@ -311,7 +311,8 @@ export function StartedLiveTranscription({
     setIsAtBottom(nearBottom);
   }, []);
 
-  const nothingToShow = captions?.caption_history.length === 0;
+  console.log('captions: ', captions);
+  const nothingToShow = (captions?.caption_history.length ?? 0) === 0;
 
   pluginLogger.debug('Rendering captions panel', {
     logCode: 'live_transcription_render_captions',
