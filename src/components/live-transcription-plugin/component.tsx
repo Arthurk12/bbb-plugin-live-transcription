@@ -19,6 +19,7 @@ import { StartedLiveTranscription } from '../started-live-transcription/componen
 import useEnableTranscription from '../../hooks/useEnableTranscription';
 import { pluginLogger } from '../..';
 import { isGladia, mostSimilarLanguage } from '../../service';
+import { IconSVG } from '../icon/component';
 
 const intlMessages = defineMessages({
   sidekickSectionName: {
@@ -95,7 +96,9 @@ export function LiveTranscriptionPlugin(
             ? intlMessages.sidekickButtonTitleTranslation
             : intlMessages.sidekickButtonTitle,
         ),
-        buttonIcon: 'closed_caption',
+        buttonIcon: {
+          svgContent: <IconSVG />,
+        },
         section: intl.formatMessage(intlMessages.sidekickSectionName),
         open: false,
         contentFunction: (element: HTMLElement) => {
@@ -126,7 +129,9 @@ export function LiveTranscriptionPlugin(
             ? intlMessages.sidekickButtonTitleTranslation
             : intlMessages.sidekickButtonTitle,
         ),
-        buttonIcon: 'closed_caption',
+        buttonIcon: {
+          svgContent: <IconSVG />,
+        },
         section: intl.formatMessage(intlMessages.sidekickSectionName),
         open: true,
         contentFunction: (element: HTMLElement) => {
