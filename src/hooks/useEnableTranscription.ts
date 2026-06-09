@@ -17,6 +17,11 @@ const intlMessages = defineMessages({
     description: 'Notification shown when live transcription is enabled for the room',
     defaultMessage: 'Real-time transcription has been enabled for the room. Access the transcription panel in the apps gallery.',
   },
+  transcriptionEnabledUnsupported: {
+    id: 'live_transcription.notification.enabled.unsupported',
+    description: 'Notification shown when live transcription is enabled but user browser does not support Web Speech API',
+    defaultMessage: 'Real-time transcription has been enabled for the room. However, your browser does not support the Web Speech API and transcription may not work properly.',
+  },
 });
 
 const useEnableTranscription = (pluginApi: PluginApi, isMod: boolean, intl: IntlShape) => {
@@ -58,10 +63,22 @@ const useEnableTranscription = (pluginApi: PluginApi, isMod: boolean, intl: Intl
     setStarted(shouldEnableTranscription);
     setActiveLocale(newLocale as string);
     if (!wasEnabledRef.current && shouldEnableTranscription) {
+      // Determine if current user has webspeech support and show appropriate notification
+      const hasSupport = hasSpeechRecognitionSupport();
+      const isWebSpeechProvider = isWebSpeech(provider);
+
+      const notificationMessage = (isWebSpeechProvider && !hasSupport)
+        ? intl.formatMessage(intlMessages.transcriptionEnabledUnsupported)
+        : intl.formatMessage(intlMessages.transcriptionEnabled);
+
+      const notificationType = (isWebSpeechProvider && !hasSupport)
+        ? NotificationTypeUiCommand.WARNING
+        : NotificationTypeUiCommand.INFO;
+
       pluginApi.uiCommands?.notification.send({
-        message: intl.formatMessage(intlMessages.transcriptionEnabled),
+        message: notificationMessage,
         icon: 'closed_caption',
-        type: NotificationTypeUiCommand.INFO,
+        type: notificationType,
       });
     }
     wasEnabledRef.current = shouldEnableTranscription;

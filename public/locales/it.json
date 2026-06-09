@@ -23,6 +23,7 @@
   "panel.content.localeSelector.autoDetect": "Rilevamento automatico",
   "panel.content.translationHint.title": "Traduzione in tempo reale disponibile!",
   "panel.content.translationHint.label": "Dopo l'avvio, puoi scegliere una lingua di visualizzazione per seguire la trascrizione tradotta in tempo reale.",
+  "panel.content.unsupportedUsers.hint.label": "I seguenti partecipanti non dispongono del supporto Web Speech API e non potranno fornire trascrizione vocale:",
   "sidekick.panel.settings.label": "Impostazioni",
   "sidekick.panel.fontSettings.tooltip": "Queste impostazioni si applicano solo alla finestra flottante delle trascrizioni",
   "sidekick.panel.fontSettings.size": "Dimensione",
@@ -44,5 +45,9 @@
   "sidekick.panel.fontSettings.section.showName": "Nome",
   "sidekick.panel.fontSettings.section.layout": "Disposizione",
   "sidekick.panel.viewLocaleSelector.label": "Lingua di visualizzazione",
-  "live_transcription.notification.enabled": "La trascrizione in tempo reale è stata abilitata per la stanza. Accedi al pannello di trascrizione nella galleria delle app."
+  "live_transcription.notification.enabled": "La trascrizione in tempo reale è stata abilitata per la stanza. Accedi al pannello di trascrizione nella galleria delle app.",
+  "live_transcription.notification.enabled.unsupported": "La trascrizione in tempo reale è stata abilitata per la stanza. Tuttavia, il tuo browser non supporta l'API Web Speech e la tua voce non sarà trascritta.",
+  "live_transcription.modal.unsupportedUsers.title": "Partecipanti senza supporto Web Speech",
+  "live_transcription.modal.unsupportedUsers.count": "{count, plural, one {# partecipante} other {# partecipanti}} non dispone del supporto API Web Speech",
+  "live_transcription.banner.unsupported": "Web Speech API non supportato nel tuo browser. La tua voce non sarà trascritta."
 }

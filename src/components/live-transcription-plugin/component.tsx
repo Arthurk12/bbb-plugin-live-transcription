@@ -17,6 +17,7 @@ import {
 import { LiveTranscriptionPanel } from '../live-transcription-panel/component';
 import { StartedLiveTranscription } from '../started-live-transcription/component';
 import useEnableTranscription from '../../hooks/useEnableTranscription';
+import { useWebspeechSupportBroadcast } from '../../hooks/useWebspeechSupportBroadcast';
 import { pluginLogger } from '../..';
 import { isGladia, mostSimilarLanguage } from '../../service';
 import { IconSVG } from '../icon/component';
@@ -78,6 +79,9 @@ export function LiveTranscriptionPlugin(
 
   const fallbackIntl = intl ?? createIntl({ locale: currentLocale }, createIntlCache());
   const transcriptionStarted = useEnableTranscription(pluginApi, Boolean(isMod), fallbackIntl);
+
+  // Initialize webspeech support broadcast on plugin startup
+  useWebspeechSupportBroadcast(pluginApi);
 
   useEffect(() => {
     pluginLogger.debug('Updating current locale in store', { logCode: 'live_transcription_update_current_locale', extraInfo: { currentLocale } });

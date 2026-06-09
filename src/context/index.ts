@@ -1,5 +1,11 @@
 import { create } from 'zustand';
 
+export interface WebSpeechUserSupport {
+  userId: string;
+  hasSupport: boolean;
+  name?: string;
+}
+
 interface LiveTranscriptionStore {
   activeLocale: string;
   setActiveLocale: (locale: string) => void;
@@ -9,6 +15,9 @@ interface LiveTranscriptionStore {
   setLoadSince: (since: string) => void;
   currentLocale: string;
   setCurrentLocale: (locale: string) => void;
+  unsupportedWebspeechUsers: WebSpeechUserSupport[];
+  setUnsupportedWebspeechUsers: (users: WebSpeechUserSupport[]) => void;
+  addOrUpdateWebspeechUserSupport: (user: WebSpeechUserSupport) => void;
 }
 
 export const useLiveTranscriptionStore = create<LiveTranscriptionStore>((set) => ({
@@ -20,4 +29,17 @@ export const useLiveTranscriptionStore = create<LiveTranscriptionStore>((set) =>
   setLoadSince: (since) => set({ loadSince: since }),
   currentLocale: '',
   setCurrentLocale: (locale) => set({ currentLocale: locale }),
+  unsupportedWebspeechUsers: [],
+  setUnsupportedWebspeechUsers: (users) => set({ unsupportedWebspeechUsers: users }),
+  addOrUpdateWebspeechUserSupport: (user) => set((state) => {
+    const existingIndex = state.unsupportedWebspeechUsers.findIndex(
+      (u) => u.userId === user.userId,
+    );
+    if (existingIndex > -1) {
+      const updated = [...state.unsupportedWebspeechUsers];
+      updated[existingIndex] = user;
+      return { unsupportedWebspeechUsers: updated };
+    }
+    return { unsupportedWebspeechUsers: [...state.unsupportedWebspeechUsers, user] };
+  }),
 }));

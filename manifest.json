@@ -14,6 +14,17 @@
                 "creator",
                 "moderator"
             ]
+        },
+        {
+            "name": "WEBSPEECH_SUPPORT_CHANNEL",
+            "pushPermission": [
+                "moderator",
+                "viewer"
+            ],
+            "replaceOrDeletePermission": [
+                "creator",
+                "moderator"
+            ]
         }
   ]
 }

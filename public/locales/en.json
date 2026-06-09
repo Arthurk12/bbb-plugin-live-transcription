@@ -23,6 +23,7 @@
   "panel.content.localeSelector.autoDetect": "Auto-detect",
   "panel.content.translationHint.title": "Real-time translation available!",
   "panel.content.translationHint.label": "After starting, you can choose a display language to follow the transcription translated in real time.",
+  "panel.content.unsupportedUsers.hint.label": "The following participants do not have Web Speech API support and will not be able to provide voice transcription:",
   "sidekick.panel.settings.label": "Settings",
   "sidekick.panel.fontSettings.tooltip": "These settings apply only to the floating transcription window",
   "sidekick.panel.fontSettings.size": "Size",
@@ -44,5 +45,9 @@
   "sidekick.panel.fontSettings.section.showName": "Name",
   "sidekick.panel.fontSettings.section.layout": "Layout",
   "sidekick.panel.viewLocaleSelector.label": "View language",
-  "live_transcription.notification.enabled": "Real-time transcription has been enabled for the room. Access the transcription panel in the apps gallery."
+  "live_transcription.notification.enabled": "Real-time transcription has been enabled for the room. Access the transcription panel in the apps gallery.",
+  "live_transcription.notification.enabled.unsupported": "Real-time transcription has been enabled for the room. However, your browser does not support the Web Speech API and your voice will not be transcribed.",
+  "live_transcription.modal.unsupportedUsers.title": "Participants without Web Speech Support",
+  "live_transcription.modal.unsupportedUsers.count": "{count, plural, one {# participant} other {# participants}} don't have Web Speech API support",
+  "live_transcription.banner.unsupported": "Web Speech API not supported in your browser. Your voice will not be transcribed."
 }

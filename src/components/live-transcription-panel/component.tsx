@@ -134,6 +134,11 @@ const intlMessages = defineMessages({
     description: 'Description of the hint about real-time translation availability',
     defaultMessage: 'After starting, you can choose a display language to follow the transcription translated in real time.',
   },
+  unsupportedUsersHintLabel: {
+    id: 'panel.content.unsupportedUsers.hint.label',
+    description: 'Label for hint showing users without webspeech support',
+    defaultMessage: 'The following participants do not have Web Speech API support and will not be able to provide voice transcription:',
+  },
 });
 
 export function LiveTranscriptionPanel({
@@ -141,7 +146,7 @@ export function LiveTranscriptionPanel({
   initialLocale,
   intl,
 }: LiveTranscriptionPanelContentProps): ReactNode {
-  const { started, setStarted } = useLiveTranscriptionStore((s) => s);
+  const { started, setStarted, unsupportedWebspeechUsers } = useLiveTranscriptionStore((s) => s);
   const enabledLocales = useEnabledLocales();
   const panelImageUrl = usePanelImageUrl();
   const termsOfUseUrl = useTermsOfUseUrl();
@@ -166,7 +171,7 @@ export function LiveTranscriptionPanel({
     pluginLogger.debug('Starting live transcription', { logCode: 'live_transcription_start', extraInfo: { locale: selectedLocale } });
     setStarted(true);
     dataChannelPushEntry({ state: 'started', locale: selectedLocale });
-  }, [selectedLocale, dataChannelPushEntry]);
+  }, [selectedLocale, dataChannelPushEntry, provider]);
 
   if (started) {
     pluginLogger.debug('Live transcription started, rendering viewer panel', { logCode: 'live_transcription_render_viewer_panel' });
@@ -207,6 +212,20 @@ export function LiveTranscriptionPanel({
       </Styled.Content>
 
       <Styled.Footer>
+        {isWebSpeech(provider) && unsupportedWebspeechUsers.length > 0 && (
+          <BBBHint
+            label={intl.formatMessage(intlMessages.unsupportedUsersHintLabel)}
+            onRequestClose={() => {}}
+          >
+            <Styled.UnsupportedUsersList>
+              {unsupportedWebspeechUsers.map((user) => (
+                <Styled.UnsupportedUserItem key={user.userId}>
+                  {user.name || user.userId}
+                </Styled.UnsupportedUserItem>
+              ))}
+            </Styled.UnsupportedUsersList>
+          </BBBHint>
+        )}
         {isGladia(provider) && !hintClosed && (
           <BBBHint
             title={intl.formatMessage(intlMessages.translationHintTitle)}

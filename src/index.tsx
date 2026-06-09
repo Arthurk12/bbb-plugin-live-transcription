@@ -5,6 +5,7 @@ import { LiveTranscriptionPlugin } from './components/live-transcription-plugin/
 import { SettingsProvider } from './context/settings/context';
 
 export const LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME = 'LIVE_TRANSCRIPTION_CHANNEL';
+export const WEBSPEECH_SUPPORT_DATA_CHANNEL_NAME = 'WEBSPEECH_SUPPORT_CHANNEL';
 
 const uuid = document.currentScript?.getAttribute('uuid') || 'root';
 const pluginRoot = document.getElementById(uuid);
