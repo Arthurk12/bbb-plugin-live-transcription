@@ -168,7 +168,9 @@ export function LiveTranscriptionPanel({
   }, []);
 
   const handleStartTranscription = useCallback(() => {
-    pluginLogger.debug('Starting live transcription', { logCode: 'live_transcription_start', extraInfo: { locale: selectedLocale } });
+    pluginLogger.info({
+      logCode: 'plg_started',
+    }, `Plugin started: ${pluginApi.pluginName}`);
     setStarted(true);
     dataChannelPushEntry({ state: 'started', locale: selectedLocale });
   }, [selectedLocale, dataChannelPushEntry, provider]);
