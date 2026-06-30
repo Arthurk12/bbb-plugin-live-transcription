@@ -55,7 +55,7 @@ function splitCaption(
   let currentLine = '';
   let result = '';
 
-  for (const word of words) {
+  words.forEach((word) => {
     if ((currentLine + word).length <= lineLimit) {
       currentLine += `${word} `;
     } else {
@@ -67,7 +67,7 @@ function splitCaption(
       transcripts.push(result);
       result = '';
     }
-  }
+  });
 
   if (result.length) {
     transcripts.push(result);
