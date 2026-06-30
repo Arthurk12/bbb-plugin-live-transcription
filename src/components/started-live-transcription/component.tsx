@@ -20,7 +20,9 @@ import * as Styled from './styles';
 import { CaptionActiveLocaleGraphqlResponse, DataChannelResponse } from '../types';
 import { GET_CAPTION_ACTIVE_LOCALES } from '../queries';
 
-import { getLocaleName, isGladia, mostSimilarLanguage, isWebSpeech } from '../../service';
+import {
+  getLocaleName, isGladia, mostSimilarLanguage, isWebSpeech,
+} from '../../service';
 import { hasSpeechRecognitionSupport } from '../../hooks/service';
 import {
   FloatingCaptionsFontSettings,
