@@ -33,8 +33,9 @@ jobs:
 
       - name: Set up Node.js
         run: |
-          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-            sudo apt-get install -y nodejs
+          NODE_VERSION=$(cat .nvmrc)
+          curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
+          sudo apt-get install -y nodejs
 
       - name: Verify Node.js installation
         run: |
