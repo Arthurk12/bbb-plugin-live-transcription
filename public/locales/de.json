@@ -23,6 +23,7 @@
   "panel.content.localeSelector.autoDetect": "Automatisch erkennen",
   "panel.content.translationHint.title": "Echtzeit-Übersetzung verfügbar!",
   "panel.content.translationHint.label": "Nach dem Start können Sie eine Anzeigesprache wählen, um die Transkription in Echtzeit übersetzt zu verfolgen.",
+  "panel.content.unsupportedUsers.hint.label": "Die folgenden Teilnehmer haben keine Web Speech API-Unterstützung und können keine Sprachtranskription bereitstellen:",
   "sidekick.panel.settings.label": "Einstellungen",
   "sidekick.panel.fontSettings.tooltip": "Diese Einstellungen gelten nur für das schwebende Transkriptionsfenster",
   "sidekick.panel.fontSettings.size": "Größe",
@@ -44,5 +45,9 @@
   "sidekick.panel.fontSettings.section.showName": "Name",
   "sidekick.panel.fontSettings.section.layout": "Anordnung",
   "sidekick.panel.viewLocaleSelector.label": "Anzeigesprache",
-  "live_transcription.notification.enabled": "Die Echtzeit-Transkription wurde für den Raum aktiviert. Öffnen Sie das Transkriptions-Panel in der App-Galerie."
+  "live_transcription.notification.enabled": "Die Echtzeit-Transkription wurde für den Raum aktiviert. Öffnen Sie das Transkriptions-Panel in der App-Galerie.",
+  "live_transcription.notification.enabled.unsupported": "Die Echtzeit-Transkription wurde für den Raum aktiviert. Ihr Browser unterstützt jedoch die Web Speech API nicht und Ihre Stimme wird nicht transkribiert.",
+  "live_transcription.modal.unsupportedUsers.title": "Teilnehmer ohne Web Speech Support",
+  "live_transcription.modal.unsupportedUsers.count": "{count, plural, one {# Teilnehmer} other {# Teilnehmer}} verfügt nicht über Web Speech API-Unterstützung",
+  "live_transcription.banner.unsupported": "Web Speech API wird in Ihrem Browser nicht unterstützt. Ihre Stimme wird nicht transkribiert."
 }

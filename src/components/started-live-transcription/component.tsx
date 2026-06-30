@@ -14,13 +14,14 @@ import {
 import { MenuItem } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import {
-  BBBTypography, BBButton, BBBToggle, BBBAccordion, BBBSelect,
+  BBBTypography, BBButton, BBBToggle, BBBAccordion, BBBSelect, BBBHint,
 } from '@mconf/bbb-ui-components-react';
 import * as Styled from './styles';
 import { CaptionActiveLocaleGraphqlResponse, DataChannelResponse } from '../types';
 import { GET_CAPTION_ACTIVE_LOCALES } from '../queries';
 
-import { getLocaleName, isGladia, mostSimilarLanguage } from '../../service';
+import { getLocaleName, isGladia, mostSimilarLanguage, isWebSpeech } from '../../service';
+import { hasSpeechRecognitionSupport } from '../../hooks/service';
 import {
   FloatingCaptionsFontSettings,
   FloatingCaptionsSplitSettings,
@@ -178,6 +179,11 @@ const intlMessages = defineMessages({
     description: 'Section header for layout settings',
     defaultMessage: 'Layout',
   },
+  unsupportedHintLabel: {
+    id: 'live_transcription.banner.unsupported',
+    description: 'Hint message for users without Web Speech API support',
+    defaultMessage: 'Web Speech API not supported in your browser. Your voice will not be transcribed.',
+  },
 });
 
 export function StartedLiveTranscription({
@@ -251,8 +257,17 @@ export function StartedLiveTranscription({
 
   const viewLocaleSelectorVisible = isGladia(provider) && otherLocales.length > 0;
 
+  const showUnsupportedHint = isWebSpeech(provider) && !hasSpeechRecognitionSupport();
+  const [unsupportedHintClosed, setUnsupportedHintClosed] = useState(false);
+
   return (
     <Styled.Container>
+      {showUnsupportedHint && !unsupportedHintClosed && (
+        <BBBHint
+          label={intl.formatMessage(intlMessages.unsupportedHintLabel)}
+          onRequestClose={() => setUnsupportedHintClosed(true)}
+        />
+      )}
 
       <Styled.HeaderToolbar>
         <Styled.LocaleSelectorRow>

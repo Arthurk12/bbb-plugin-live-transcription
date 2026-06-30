@@ -17,8 +17,10 @@ import {
 import { LiveTranscriptionPanel } from '../live-transcription-panel/component';
 import { StartedLiveTranscription } from '../started-live-transcription/component';
 import useEnableTranscription from '../../hooks/useEnableTranscription';
+import { useWebspeechSupportBroadcast } from '../../hooks/useWebspeechSupportBroadcast';
 import { pluginLogger } from '../..';
 import { isGladia, mostSimilarLanguage } from '../../service';
+import { IconSVG } from '../icon/component';
 
 const intlMessages = defineMessages({
   sidekickSectionName: {
@@ -78,6 +80,9 @@ export function LiveTranscriptionPlugin(
   const fallbackIntl = intl ?? createIntl({ locale: currentLocale }, createIntlCache());
   const transcriptionStarted = useEnableTranscription(pluginApi, Boolean(isMod), fallbackIntl);
 
+  // Initialize webspeech support broadcast on plugin startup
+  useWebspeechSupportBroadcast(pluginApi);
+
   useEffect(() => {
     pluginLogger.debug('Updating current locale in store', { logCode: 'live_transcription_update_current_locale', extraInfo: { currentLocale } });
     setCurrentLocale(currentLocale);
@@ -95,7 +100,9 @@ export function LiveTranscriptionPlugin(
             ? intlMessages.sidekickButtonTitleTranslation
             : intlMessages.sidekickButtonTitle,
         ),
-        buttonIcon: 'closed_caption',
+        buttonIcon: {
+          svgContent: <IconSVG />,
+        },
         section: intl.formatMessage(intlMessages.sidekickSectionName),
         open: false,
         contentFunction: (element: HTMLElement) => {
@@ -126,7 +133,9 @@ export function LiveTranscriptionPlugin(
             ? intlMessages.sidekickButtonTitleTranslation
             : intlMessages.sidekickButtonTitle,
         ),
-        buttonIcon: 'closed_caption',
+        buttonIcon: {
+          svgContent: <IconSVG />,
+        },
         section: intl.formatMessage(intlMessages.sidekickSectionName),
         open: true,
         contentFunction: (element: HTMLElement) => {
