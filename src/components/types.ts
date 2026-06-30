@@ -5,6 +5,12 @@ export interface LiveTranscriptionPluginProps {
   pluginApi: NonNullable<PluginApi>;
 }
 
+export interface CaptionLocaleGraphqlResponse {
+  user_current: {
+    captionLocale: string;
+  }[];
+}
+
 export interface CaptionActiveLocaleGraphqlResponse {
   caption_activeLocales: {
     locale: string;

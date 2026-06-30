@@ -3,7 +3,7 @@ import {
   ReactNode, useEffect, useLayoutEffect, useRef, useState, useCallback,
 } from 'react';
 import { IntlShape, defineMessages } from 'react-intl';
-import { DataChannelTypes, PluginApi } from 'bigbluebutton-html-plugin-sdk';
+import { DataChannelTypes, PluginApi, CaptionsLanguageEnum } from 'bigbluebutton-html-plugin-sdk';
 import {
   History as MDHistoryIcon,
   ContentCopy as MDContentCopyIcon,
@@ -17,8 +17,8 @@ import {
   BBBTypography, BBButton, BBBToggle, BBBAccordion, BBBSelect, BBBHint,
 } from '@mconf/bbb-ui-components-react';
 import * as Styled from './styles';
-import { CaptionActiveLocaleGraphqlResponse, DataChannelResponse } from '../types';
-import { GET_CAPTION_ACTIVE_LOCALES } from '../queries';
+import { CaptionActiveLocaleGraphqlResponse, DataChannelResponse, CaptionLocaleGraphqlResponse } from '../types';
+import { GET_CAPTION_ACTIVE_LOCALES, GET_CURRENT_CAPTION_LOCALE } from '../queries';
 
 import {
   getLocaleName, isGladia, mostSimilarLanguage, isWebSpeech,
@@ -229,6 +229,15 @@ export function StartedLiveTranscription({
     dataChannelPushEntry({ state: 'started', locale: newLocale });
   }, [dataChannelPushEntry]);
 
+  // Tracks the value of the locale being viewed.
+  const { data: currentCaptionLocaleData } = pluginApi.useCustomSubscription!<
+    CaptionLocaleGraphqlResponse>(GET_CURRENT_CAPTION_LOCALE);
+
+  const isViewCaptionsOverTheMediaEnabled = React.useMemo(() => {
+    if (!currentCaptionLocaleData) return false;
+    return currentCaptionLocaleData.user_current[0].captionLocale !== '';
+  }, [currentCaptionLocaleData]);
+
   const { data: captionActiveLocalesResult } = pluginApi.useCustomSubscription!<
     CaptionActiveLocaleGraphqlResponse>(GET_CAPTION_ACTIVE_LOCALES);
 
@@ -338,6 +347,23 @@ export function StartedLiveTranscription({
             />
           </Styled.HeaderToolbarGroup>
           <Styled.HeaderToolbarGroup>
+            <BBBToggle
+              helperText="Show captions"
+              checked={isViewCaptionsOverTheMediaEnabled}
+              onChange={(_, checked) => {
+                const language = checked ? viewLocale : '';
+                // Check whether the viewLocale string is equal to one of the values
+                // in CaptionsLanguageEnum
+                if (Object.values(CaptionsLanguageEnum)
+                  .includes(language as CaptionsLanguageEnum)) {
+                  pluginApi.uiCommands?.captions.setDisplayAudioCaptions({
+                    displayAudioCaptions: language as CaptionsLanguageEnum,
+                  });
+                } else {
+                  pluginLogger.warn('Attempted to set displayAudioCaptions with an invalid locale', { extraInfo: { locale: language } });
+                }
+              }}
+            />
             <BBButton
               label={intl.formatMessage(floatingOpen
                 ? intlMessages.floatButtonClose : intlMessages.floatButtonOpen)}

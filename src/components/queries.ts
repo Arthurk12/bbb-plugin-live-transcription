@@ -45,3 +45,11 @@ export const SET_SPEECH_LOCALE = `
     )
   }
 `;
+
+export const GET_CURRENT_CAPTION_LOCALE = `
+  subscription userCurrentSubscription {
+    user_current {
+      captionLocale
+    }
+  }
+`;
