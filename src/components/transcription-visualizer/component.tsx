@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  ReactNode, useCallback, useEffect, useRef, useState,
+  ReactNode, useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { IntlShape, defineMessages } from 'react-intl';
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
@@ -11,11 +11,7 @@ import { CaptionGraphqlResult, LiveCaptionGraphqlResult } from '../types';
 import { GET_CAPTIONS_SINCE, GET_LIVE_CAPTIONS } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
-import {
-  FloatingCaptionsWindow,
-  FloatingCaptionsFontSettings,
-  FloatingCaptionsSplitSettings,
-} from '../floating-captions/component';
+import { FloatingCaptionsEntry } from '../floating-captions/component';
 import { pluginLogger } from '../../index';
 import * as Styled from '../started-live-transcription/styles';
 
@@ -29,28 +25,22 @@ const intlMessages = defineMessages({
 
 interface TranscriptionVisualizerProps {
   pluginApi: NonNullable<PluginApi>;
-  locale: string;
   viewLocale: string;
   loadSince: string;
   intl: IntlShape;
   captionsTextRef: React.MutableRefObject<string>;
-  floatingOpen: boolean;
-  fontSettings: FloatingCaptionsFontSettings;
-  splitSettings: FloatingCaptionsSplitSettings;
-  onFloatingClose: () => void;
+  isActive: boolean;
+  onLiveCaptionsChange: (entries: FloatingCaptionsEntry[]) => void;
 }
 
 export function TranscriptionVisualizer({
   pluginApi,
-  locale,
   viewLocale,
   loadSince,
   intl,
   captionsTextRef,
-  floatingOpen,
-  fontSettings,
-  splitSettings,
-  onFloatingClose,
+  isActive,
+  onLiveCaptionsChange,
 }: TranscriptionVisualizerProps): ReactNode {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -106,11 +96,12 @@ export function TranscriptionVisualizer({
   }, [captions, viewLocale, scrollToBottom, isAtBottom]);
 
   useEffect(() => {
+    if (!isActive) return;
     // eslint-disable-next-line no-param-reassign
     captionsTextRef.current = captions?.caption_history?.map(
       (c) => `${c.user.name} (${new Date(c.createdAt).toLocaleTimeString()}): ${c.captionText}`,
     ).join('\n') ?? '';
-  }, [captions, captionsTextRef]);
+  }, [captions, captionsTextRef, isActive]);
 
   const handleScroll = useCallback(() => {
     const container = containerRef.current;
@@ -118,27 +109,23 @@ export function TranscriptionVisualizer({
     setIsAtBottom(container.scrollTop >= -50);
   }, []);
 
-  const floatingCaptionEntries = (liveCaptions?.caption ?? []).map((c) => ({
+  const floatingCaptionEntries = useMemo(() => (liveCaptions?.caption ?? []).map((c) => ({
     captionId: c.captionId,
     captionText: c.captionText,
     userName: c.user.name,
     userColor: c.user.color,
     userAvatar: c.user.avatar,
-  }));
+  })), [liveCaptions]);
+
+  useEffect(() => {
+    if (!isActive) return;
+    onLiveCaptionsChange(floatingCaptionEntries);
+  }, [floatingCaptionEntries, isActive, onLiveCaptionsChange]);
 
   const nothingToShow = (captions?.caption_history?.length ?? 0) === 0;
 
   return (
     <>
-      {floatingOpen && (
-        <FloatingCaptionsWindow
-          captions={floatingCaptionEntries}
-          locale={locale}
-          fontSettings={fontSettings}
-          splitSettings={splitSettings}
-          onClose={onFloatingClose}
-        />
-      )}
       <Styled.SettingsDivider />
       <Styled.ScrollAreaWrapper>
         {nothingToShow ? (

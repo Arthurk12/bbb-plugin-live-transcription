@@ -25,6 +25,8 @@ import {
 } from '../../service';
 import { hasSpeechRecognitionSupport } from '../../hooks/service';
 import {
+  FloatingCaptionsWindow,
+  FloatingCaptionsEntry,
   FloatingCaptionsFontSettings,
   FloatingCaptionsSplitSettings,
 } from '../floating-captions/component';
@@ -198,6 +200,7 @@ export function StartedLiveTranscription({
   const enabledLocales = useEnabledLocales();
   const provider = useSpeechProvider();
   const [floatingOpen, setFloatingOpen] = useState(false);
+  const [activeFloatingEntries, setActiveFloatingEntries] = useState<FloatingCaptionsEntry[]>([]);
   const [fontSettings, setFontSettings] = useState<
     FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
   const [splitSettings, setSplitSettings] = useState<
@@ -205,6 +208,14 @@ export function StartedLiveTranscription({
   const [viewLocale, setViewLocale] = useState<string>(locale === 'auto'
     ? mostSimilarLanguage(currentLocale, enabledLocales) : locale);
   const [spokenLocale, setSpokenLocale] = useState<string>(locale);
+  // Workaround for a plugin SDK bug where changing a subscription's variables
+  // breaks it: instead of reusing one TranscriptionVisualizer and swapping its
+  // viewLocale, keep one mounted (but hidden) instance per locale ever
+  // selected, each with a viewLocale that never changes after mount.
+  const [seenViewLocales, setSeenViewLocales] = useState<string[]>(() => [viewLocale]);
+  useEffect(() => {
+    setSeenViewLocales((prev) => (prev.includes(viewLocale) ? prev : [...prev, viewLocale]));
+  }, [viewLocale]);
   // Force a re-render after DOM commit so BBBAccordion re-measures its content
   // height when conditional rows (showUserName, outlineStyle) are toggled.
   const [, setAccordionTick] = useState(0);
@@ -651,18 +662,28 @@ export function StartedLiveTranscription({
 
         </Styled.SettingsPanel>
       </BBBAccordion>
-      <TranscriptionVisualizer
-        pluginApi={pluginApi}
-        locale={locale}
-        viewLocale={viewLocale}
-        loadSince={loadSince}
-        intl={intl}
-        captionsTextRef={captionsTextRef}
-        floatingOpen={floatingOpen}
-        fontSettings={fontSettings}
-        splitSettings={splitSettings}
-        onFloatingClose={() => setFloatingOpen(false)}
-      />
+      {floatingOpen && (
+        <FloatingCaptionsWindow
+          captions={activeFloatingEntries}
+          locale={locale}
+          fontSettings={fontSettings}
+          splitSettings={splitSettings}
+          onClose={() => setFloatingOpen(false)}
+        />
+      )}
+      {seenViewLocales.map((loc) => (
+        <Styled.LocalePanel key={loc} $active={loc === viewLocale}>
+          <TranscriptionVisualizer
+            pluginApi={pluginApi}
+            viewLocale={loc}
+            loadSince={loadSince}
+            intl={intl}
+            captionsTextRef={captionsTextRef}
+            isActive={loc === viewLocale}
+            onLiveCaptionsChange={setActiveFloatingEntries}
+          />
+        </Styled.LocalePanel>
+      ))}
     </Styled.Container>
   );
 }

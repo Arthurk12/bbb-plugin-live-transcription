@@ -126,6 +126,13 @@ export const ScrollAreaWrapper = styled.div`
   flex-direction: column;
 `;
 
+export const LocalePanel = styled.div<{ $active: boolean }>`
+  display: ${({ $active }) => ($active ? 'flex' : 'none')};
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+`;
+
 export const SettingsPanel = styled.div`
   display: flex;
   flex-direction: column;
