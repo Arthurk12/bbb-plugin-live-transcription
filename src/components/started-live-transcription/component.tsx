@@ -199,6 +199,7 @@ export function StartedLiveTranscription({
   const {
     loadSince, setLoadSince, currentLocale,
     viewLocale: persistedViewLocale, setViewLocale: setPersistedViewLocale,
+    viewLocaleManuallySet, setViewLocaleManuallySet,
     spokenLocale: persistedSpokenLocale, setSpokenLocale: setPersistedSpokenLocale,
   } = useLiveTranscriptionStore((s) => s);
   const enabledLocales = useEnabledLocales();
@@ -253,7 +254,12 @@ export function StartedLiveTranscription({
     const newLocale = e.target.value as string;
     setSpokenLocale(newLocale);
     dataChannelPushEntry({ state: 'started', locale: newLocale });
-  }, [dataChannelPushEntry]);
+    // 'auto' is only meaningful for the spoken (input) locale, not the view
+    // (output) locale, so don't propagate it.
+    if (!viewLocaleManuallySet && newLocale !== 'auto') {
+      setViewLocale(newLocale);
+    }
+  }, [dataChannelPushEntry, viewLocaleManuallySet, setSpokenLocale, setViewLocale]);
 
   // Tracks the value of the locale being viewed.
   const { data: currentCaptionLocaleData } = pluginApi.useCustomSubscription!<
@@ -359,6 +365,7 @@ export function StartedLiveTranscription({
               title={intl.formatMessage(intlMessages.viewLocaleSelectorLabel)}
               onChange={(e) => {
                 setViewLocale(e.target.value as string);
+                setViewLocaleManuallySet(true);
                 if (!isGladia(provider)) {
                   // When translation is not enabled, lock the spoken locale to
                   // the view locale to avoid confusion.
