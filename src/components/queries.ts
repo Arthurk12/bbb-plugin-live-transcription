@@ -37,6 +37,19 @@ subscription getCaptionsSince($locale: String!, $since: timestamptz!) {
 }
 `;
 
+// "caption" (unlike "caption_history") only exposes rows created in the last
+// few seconds, so it naturally empties out after a period of silence.
+export const GET_LIVE_CAPTIONS = `
+subscription getLiveCaptions($locale: String!) {
+  caption(
+    where: { locale: { _eq: $locale } }
+    order_by: { createdAt: desc }
+  ) {
+    ${CAPTION_HISTORY_FIELDS}
+  }
+}
+`;
+
 export const SET_SPEECH_LOCALE = `
   mutation SetSpeechLocale($locale: String!, $provider: String!) {
     userSetSpeechLocale(

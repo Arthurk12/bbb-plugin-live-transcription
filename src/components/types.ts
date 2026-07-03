@@ -41,6 +41,20 @@ export interface CaptionGraphqlResult {
   }[];
 }
 
+export interface LiveCaptionGraphqlResult {
+  caption: {
+    user: {
+      avatar: string;
+      color: string;
+      name: string;
+      presenter: boolean;
+    }
+    captionText: string;
+    captionId: string;
+    createdAt: string;
+  }[];
+}
+
 export interface UserAvatarInitialsProps {
   background: string;
 }

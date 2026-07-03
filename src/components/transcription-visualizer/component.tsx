@@ -7,8 +7,8 @@ import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import {
   BBBTypography, BBButton,
 } from '@mconf/bbb-ui-components-react';
-import { CaptionGraphqlResult } from '../types';
-import { GET_CAPTIONS_SINCE } from '../queries';
+import { CaptionGraphqlResult, LiveCaptionGraphqlResult } from '../types';
+import { GET_CAPTIONS_SINCE, GET_LIVE_CAPTIONS } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
 import {
@@ -68,6 +68,17 @@ export function TranscriptionVisualizer({
     },
   );
 
+  // Backs the floating captions window only: this returns just the recent,
+  // non-expired captions, so it naturally vanishes after a period of silence.
+  const { data: liveCaptions } = pluginApi.useCustomSubscription!<LiveCaptionGraphqlResult>(
+    GET_LIVE_CAPTIONS,
+    {
+      variables: {
+        locale: viewLocale,
+      },
+    },
+  );
+
   useEffect(() => {
     pluginLogger.debug('Captions subscription update', {
       logCode: 'live_transcription_captions_update',
@@ -107,7 +118,7 @@ export function TranscriptionVisualizer({
     setIsAtBottom(container.scrollTop >= -50);
   }, []);
 
-  const floatingCaptionEntries = (captions?.caption_history ?? []).map((c) => ({
+  const floatingCaptionEntries = (liveCaptions?.caption ?? []).map((c) => ({
     captionId: c.captionId,
     captionText: c.captionText,
     userName: c.user.name,

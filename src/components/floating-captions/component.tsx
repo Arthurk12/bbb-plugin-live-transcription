@@ -107,6 +107,16 @@ function FloatingCaptionsContent(
     splitSettings: FloatingCaptionsSplitSettings;
   },
 ): ReactNode {
+  // The `captions` prop already only contains recent (non-expired) entries -
+  // it naturally empties out once the presenter has been silent for a while.
+  // Track whether we've ever shown a caption so the placeholder text is only
+  // used before the very first one, not every time captions vanish from silence.
+  const [hasShownCaption, setHasShownCaption] = useState(false);
+  useEffect(() => {
+    if (captions.length > 0) setHasShownCaption(true);
+  }, [captions]);
+
+  const noCaptionsYet = !hasShownCaption && captions.length === 0;
   const lastTwo = captions
     .slice(0, 2) // get first two
     .reverse() // revert order before split
@@ -133,7 +143,7 @@ function FloatingCaptionsContent(
       overflow: 'auto',
     }}
     >
-      {lastTwo.length === 0 && (
+      {noCaptionsYet && (
         <div style={{ color: 'rgba(0,0,0,0.4)', fontSize: `${fontSettings.fontSize}px` }}>
           No captions yet...
         </div>
