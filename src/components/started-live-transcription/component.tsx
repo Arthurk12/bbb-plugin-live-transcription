@@ -25,6 +25,8 @@ import {
 } from '../../service';
 import { hasSpeechRecognitionSupport } from '../../hooks/service';
 import {
+  FloatingCaptionsWindow,
+  FloatingCaptionsEntry,
   FloatingCaptionsFontSettings,
   FloatingCaptionsSplitSettings,
 } from '../floating-captions/component';
@@ -194,17 +196,42 @@ export function StartedLiveTranscription({
   intl,
 }: LiveTranscriptionPanelProps): ReactNode {
   const captionsTextRef = useRef('');
-  const { loadSince, setLoadSince, currentLocale } = useLiveTranscriptionStore((s) => s);
+  const {
+    loadSince, setLoadSince, currentLocale,
+    viewLocale: persistedViewLocale, setViewLocale: setPersistedViewLocale,
+    viewLocaleManuallySet, setViewLocaleManuallySet,
+    spokenLocale: persistedSpokenLocale, setSpokenLocale: setPersistedSpokenLocale,
+  } = useLiveTranscriptionStore((s) => s);
   const enabledLocales = useEnabledLocales();
   const provider = useSpeechProvider();
   const [floatingOpen, setFloatingOpen] = useState(false);
+  const [activeFloatingEntries, setActiveFloatingEntries] = useState<FloatingCaptionsEntry[]>([]);
   const [fontSettings, setFontSettings] = useState<
     FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
   const [splitSettings, setSplitSettings] = useState<
     FloatingCaptionsSplitSettings>(DEFAULT_SPLIT_SETTINGS);
-  const [viewLocale, setViewLocale] = useState<string>(locale === 'auto'
-    ? mostSimilarLanguage(currentLocale, enabledLocales) : locale);
-  const [spokenLocale, setSpokenLocale] = useState<string>(locale);
+  // Locale selections are mirrored into the (persistent) store so they survive
+  // the panel being closed and reopened, which fully remounts this component.
+  const [viewLocale, setViewLocaleState] = useState<string>(() => persistedViewLocale
+    || (locale === 'auto' ? mostSimilarLanguage(currentLocale, enabledLocales) : locale));
+  const [spokenLocale, setSpokenLocaleState] = useState<string>(() => persistedSpokenLocale
+    || locale);
+  const setViewLocale = useCallback((value: string) => {
+    setViewLocaleState(value);
+    setPersistedViewLocale(value);
+  }, [setPersistedViewLocale]);
+  const setSpokenLocale = useCallback((value: string) => {
+    setSpokenLocaleState(value);
+    setPersistedSpokenLocale(value);
+  }, [setPersistedSpokenLocale]);
+  // Workaround for a plugin SDK bug where changing a subscription's variables
+  // breaks it: instead of reusing one TranscriptionVisualizer and swapping its
+  // viewLocale, keep one mounted (but hidden) instance per locale ever
+  // selected, each with a viewLocale that never changes after mount.
+  const [seenViewLocales, setSeenViewLocales] = useState<string[]>(() => [viewLocale]);
+  useEffect(() => {
+    setSeenViewLocales((prev) => (prev.includes(viewLocale) ? prev : [...prev, viewLocale]));
+  }, [viewLocale]);
   // Force a re-render after DOM commit so BBBAccordion re-measures its content
   // height when conditional rows (showUserName, outlineStyle) are toggled.
   const [, setAccordionTick] = useState(0);
@@ -227,7 +254,12 @@ export function StartedLiveTranscription({
     const newLocale = e.target.value as string;
     setSpokenLocale(newLocale);
     dataChannelPushEntry({ state: 'started', locale: newLocale });
-  }, [dataChannelPushEntry]);
+    // 'auto' is only meaningful for the spoken (input) locale, not the view
+    // (output) locale, so don't propagate it.
+    if (!viewLocaleManuallySet && newLocale !== 'auto') {
+      setViewLocale(newLocale);
+    }
+  }, [dataChannelPushEntry, viewLocaleManuallySet, setSpokenLocale, setViewLocale]);
 
   // Tracks the value of the locale being viewed.
   const { data: currentCaptionLocaleData } = pluginApi.useCustomSubscription!<
@@ -237,6 +269,29 @@ export function StartedLiveTranscription({
     if (!currentCaptionLocaleData) return false;
     return currentCaptionLocaleData.user_current[0].captionLocale !== '';
   }, [currentCaptionLocaleData]);
+
+  const currentCaptionLocale = currentCaptionLocaleData?.user_current[0]?.captionLocale ?? '';
+
+  const setDisplayCaptionsLocale = useCallback((language: string) => {
+    // Check whether the language string is equal to one of the values
+    // in CaptionsLanguageEnum
+    if (Object.values(CaptionsLanguageEnum).includes(language as CaptionsLanguageEnum)) {
+      pluginApi.uiCommands?.captions.setDisplayAudioCaptions({
+        displayAudioCaptions: language as CaptionsLanguageEnum,
+      });
+    } else {
+      pluginLogger.warn('Attempted to set displayAudioCaptions with an invalid locale', { extraInfo: { locale: language } });
+    }
+  }, [pluginApi]);
+
+  // Keep the displayed captions locale in sync with the selected view language.
+  useEffect(() => {
+    if (!isViewCaptionsOverTheMediaEnabled) return;
+    if (currentCaptionLocale === viewLocale) return;
+    setDisplayCaptionsLocale(viewLocale);
+  }, [
+    viewLocale, isViewCaptionsOverTheMediaEnabled, currentCaptionLocale, setDisplayCaptionsLocale,
+  ]);
 
   const { data: captionActiveLocalesResult } = pluginApi.useCustomSubscription!<
     CaptionActiveLocaleGraphqlResponse>(GET_CAPTION_ACTIVE_LOCALES);
@@ -310,6 +365,7 @@ export function StartedLiveTranscription({
               title={intl.formatMessage(intlMessages.viewLocaleSelectorLabel)}
               onChange={(e) => {
                 setViewLocale(e.target.value as string);
+                setViewLocaleManuallySet(true);
                 if (!isGladia(provider)) {
                   // When translation is not enabled, lock the spoken locale to
                   // the view locale to avoid confusion.
@@ -350,19 +406,7 @@ export function StartedLiveTranscription({
             <BBBToggle
               helperText="Show captions"
               checked={isViewCaptionsOverTheMediaEnabled}
-              onChange={(_, checked) => {
-                const language = checked ? viewLocale : '';
-                // Check whether the viewLocale string is equal to one of the values
-                // in CaptionsLanguageEnum
-                if (Object.values(CaptionsLanguageEnum)
-                  .includes(language as CaptionsLanguageEnum)) {
-                  pluginApi.uiCommands?.captions.setDisplayAudioCaptions({
-                    displayAudioCaptions: language as CaptionsLanguageEnum,
-                  });
-                } else {
-                  pluginLogger.warn('Attempted to set displayAudioCaptions with an invalid locale', { extraInfo: { locale: language } });
-                }
-              }}
+              onChange={(_, checked) => setDisplayCaptionsLocale(checked ? viewLocale : '')}
             />
             <BBButton
               label={intl.formatMessage(floatingOpen
@@ -640,18 +684,28 @@ export function StartedLiveTranscription({
 
         </Styled.SettingsPanel>
       </BBBAccordion>
-      <TranscriptionVisualizer
-        pluginApi={pluginApi}
-        locale={locale}
-        viewLocale={viewLocale}
-        loadSince={loadSince}
-        intl={intl}
-        captionsTextRef={captionsTextRef}
-        floatingOpen={floatingOpen}
-        fontSettings={fontSettings}
-        splitSettings={splitSettings}
-        onFloatingClose={() => setFloatingOpen(false)}
-      />
+      {floatingOpen && (
+        <FloatingCaptionsWindow
+          captions={activeFloatingEntries}
+          locale={locale}
+          fontSettings={fontSettings}
+          splitSettings={splitSettings}
+          onClose={() => setFloatingOpen(false)}
+        />
+      )}
+      {seenViewLocales.map((loc) => (
+        <Styled.LocalePanel key={loc} $active={loc === viewLocale}>
+          <TranscriptionVisualizer
+            pluginApi={pluginApi}
+            viewLocale={loc}
+            loadSince={loadSince}
+            intl={intl}
+            captionsTextRef={captionsTextRef}
+            isActive={loc === viewLocale}
+            onLiveCaptionsChange={setActiveFloatingEntries}
+          />
+        </Styled.LocalePanel>
+      ))}
     </Styled.Container>
   );
 }
