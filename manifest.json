@@ -1,30 +1,30 @@
 {
   "requiredSdkVersion": "~0.1.14",
   "name": "LiveTranscriptionPlugin",
-  "version": "0.1.0-beta.3",
+  "version": "0.1.1",
   "javascriptEntrypointUrl": "LiveTranscriptionPlugin.js",
   "localesBaseUrl": "locales",
   "dataChannels": [
-        {
-            "name": "LIVE_TRANSCRIPTION_CHANNEL",
-            "pushPermission": [
-                "moderator"
-            ],
-            "replaceOrDeletePermission": [
-                "creator",
-                "moderator"
-            ]
-        },
-        {
-            "name": "WEBSPEECH_SUPPORT_CHANNEL",
-            "pushPermission": [
-                "moderator",
-                "viewer"
-            ],
-            "replaceOrDeletePermission": [
-                "creator",
-                "moderator"
-            ]
-        }
+    {
+      "name": "LIVE_TRANSCRIPTION_CHANNEL",
+      "pushPermission": [
+        "moderator"
+      ],
+      "replaceOrDeletePermission": [
+        "creator",
+        "moderator"
+      ]
+    },
+    {
+      "name": "WEBSPEECH_SUPPORT_CHANNEL",
+      "pushPermission": [
+        "moderator",
+        "viewer"
+      ],
+      "replaceOrDeletePermission": [
+        "creator",
+        "moderator"
+      ]
+    }
   ]
 }
