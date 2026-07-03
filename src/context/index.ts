@@ -15,6 +15,10 @@ interface LiveTranscriptionStore {
   setLoadSince: (since: string) => void;
   currentLocale: string;
   setCurrentLocale: (locale: string) => void;
+  viewLocale: string;
+  setViewLocale: (locale: string) => void;
+  spokenLocale: string;
+  setSpokenLocale: (locale: string) => void;
   unsupportedWebspeechUsers: WebSpeechUserSupport[];
   setUnsupportedWebspeechUsers: (users: WebSpeechUserSupport[]) => void;
   addOrUpdateWebspeechUserSupport: (user: WebSpeechUserSupport) => void;
@@ -29,6 +33,10 @@ export const useLiveTranscriptionStore = create<LiveTranscriptionStore>((set) =>
   setLoadSince: (since) => set({ loadSince: since }),
   currentLocale: '',
   setCurrentLocale: (locale) => set({ currentLocale: locale }),
+  viewLocale: '',
+  setViewLocale: (locale) => set({ viewLocale: locale }),
+  spokenLocale: '',
+  setSpokenLocale: (locale) => set({ spokenLocale: locale }),
   unsupportedWebspeechUsers: [],
   setUnsupportedWebspeechUsers: (users) => set({ unsupportedWebspeechUsers: users }),
   addOrUpdateWebspeechUserSupport: (user) => set((state) => {

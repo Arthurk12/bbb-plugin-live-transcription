@@ -196,7 +196,11 @@ export function StartedLiveTranscription({
   intl,
 }: LiveTranscriptionPanelProps): ReactNode {
   const captionsTextRef = useRef('');
-  const { loadSince, setLoadSince, currentLocale } = useLiveTranscriptionStore((s) => s);
+  const {
+    loadSince, setLoadSince, currentLocale,
+    viewLocale: persistedViewLocale, setViewLocale: setPersistedViewLocale,
+    spokenLocale: persistedSpokenLocale, setSpokenLocale: setPersistedSpokenLocale,
+  } = useLiveTranscriptionStore((s) => s);
   const enabledLocales = useEnabledLocales();
   const provider = useSpeechProvider();
   const [floatingOpen, setFloatingOpen] = useState(false);
@@ -205,9 +209,20 @@ export function StartedLiveTranscription({
     FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
   const [splitSettings, setSplitSettings] = useState<
     FloatingCaptionsSplitSettings>(DEFAULT_SPLIT_SETTINGS);
-  const [viewLocale, setViewLocale] = useState<string>(locale === 'auto'
-    ? mostSimilarLanguage(currentLocale, enabledLocales) : locale);
-  const [spokenLocale, setSpokenLocale] = useState<string>(locale);
+  // Locale selections are mirrored into the (persistent) store so they survive
+  // the panel being closed and reopened, which fully remounts this component.
+  const [viewLocale, setViewLocaleState] = useState<string>(() => persistedViewLocale
+    || (locale === 'auto' ? mostSimilarLanguage(currentLocale, enabledLocales) : locale));
+  const [spokenLocale, setSpokenLocaleState] = useState<string>(() => persistedSpokenLocale
+    || locale);
+  const setViewLocale = useCallback((value: string) => {
+    setViewLocaleState(value);
+    setPersistedViewLocale(value);
+  }, [setPersistedViewLocale]);
+  const setSpokenLocale = useCallback((value: string) => {
+    setSpokenLocaleState(value);
+    setPersistedSpokenLocale(value);
+  }, [setPersistedSpokenLocale]);
   // Workaround for a plugin SDK bug where changing a subscription's variables
   // breaks it: instead of reusing one TranscriptionVisualizer and swapping its
   // viewLocale, keep one mounted (but hidden) instance per locale ever
