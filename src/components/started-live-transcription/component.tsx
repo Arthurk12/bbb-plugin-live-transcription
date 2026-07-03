@@ -238,6 +238,29 @@ export function StartedLiveTranscription({
     return currentCaptionLocaleData.user_current[0].captionLocale !== '';
   }, [currentCaptionLocaleData]);
 
+  const currentCaptionLocale = currentCaptionLocaleData?.user_current[0]?.captionLocale ?? '';
+
+  const setDisplayCaptionsLocale = useCallback((language: string) => {
+    // Check whether the language string is equal to one of the values
+    // in CaptionsLanguageEnum
+    if (Object.values(CaptionsLanguageEnum).includes(language as CaptionsLanguageEnum)) {
+      pluginApi.uiCommands?.captions.setDisplayAudioCaptions({
+        displayAudioCaptions: language as CaptionsLanguageEnum,
+      });
+    } else {
+      pluginLogger.warn('Attempted to set displayAudioCaptions with an invalid locale', { extraInfo: { locale: language } });
+    }
+  }, [pluginApi]);
+
+  // Keep the displayed captions locale in sync with the selected view language.
+  useEffect(() => {
+    if (!isViewCaptionsOverTheMediaEnabled) return;
+    if (currentCaptionLocale === viewLocale) return;
+    setDisplayCaptionsLocale(viewLocale);
+  }, [
+    viewLocale, isViewCaptionsOverTheMediaEnabled, currentCaptionLocale, setDisplayCaptionsLocale,
+  ]);
+
   const { data: captionActiveLocalesResult } = pluginApi.useCustomSubscription!<
     CaptionActiveLocaleGraphqlResponse>(GET_CAPTION_ACTIVE_LOCALES);
 
@@ -350,19 +373,7 @@ export function StartedLiveTranscription({
             <BBBToggle
               helperText="Show captions"
               checked={isViewCaptionsOverTheMediaEnabled}
-              onChange={(_, checked) => {
-                const language = checked ? viewLocale : '';
-                // Check whether the viewLocale string is equal to one of the values
-                // in CaptionsLanguageEnum
-                if (Object.values(CaptionsLanguageEnum)
-                  .includes(language as CaptionsLanguageEnum)) {
-                  pluginApi.uiCommands?.captions.setDisplayAudioCaptions({
-                    displayAudioCaptions: language as CaptionsLanguageEnum,
-                  });
-                } else {
-                  pluginLogger.warn('Attempted to set displayAudioCaptions with an invalid locale', { extraInfo: { locale: language } });
-                }
-              }}
+              onChange={(_, checked) => setDisplayCaptionsLocale(checked ? viewLocale : '')}
             />
             <BBButton
               label={intl.formatMessage(floatingOpen
