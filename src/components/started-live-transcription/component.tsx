@@ -39,7 +39,7 @@ import {
 import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../../index';
 import { useLiveTranscriptionStore } from '../../context';
 import { useEnabledLocales, useSpeechProvider } from '../../context/settings/context';
-import { TranscriptionVisualizer } from '../transcription-visualizer/component';
+import TranscriptionVisualizer from '../transcription-visualizer/component';
 
 interface LiveTranscriptionPanelProps {
   pluginApi: NonNullable<PluginApi>;
@@ -300,7 +300,8 @@ export function StartedLiveTranscription({
     if (!captionActiveLocalesResult) return [];
     return captionActiveLocalesResult.caption_activeLocales
       .map((l) => l.locale)
-      .filter((l) => l !== '' && l !== 'auto' && l !== locale);
+      .filter((l) => l !== '' && l !== 'auto' && l !== locale)
+      .sort((a, b) => getLocaleName(a).localeCompare(getLocaleName(b)));
   }, [captionActiveLocalesResult, locale]);
 
   const handleClearCaptions = useCallback(() => {
