@@ -3,7 +3,7 @@ import {
   ReactNode, useEffect, useLayoutEffect, useRef, useState, useCallback,
 } from 'react';
 import { IntlShape, defineMessages } from 'react-intl';
-import { DataChannelTypes, PluginApi, CaptionsLanguageEnum } from 'bigbluebutton-html-plugin-sdk';
+import { PluginApi, CaptionsLanguageEnum } from 'bigbluebutton-html-plugin-sdk';
 import {
   History as MDHistoryIcon,
   ContentCopy as MDContentCopyIcon,
@@ -17,8 +17,8 @@ import {
   BBBTypography, BBButton, BBBToggle, BBBAccordion, BBBSelect, BBBHint,
 } from '@mconf/bbb-ui-components-react';
 import * as Styled from './styles';
-import { CaptionActiveLocaleGraphqlResponse, DataChannelResponse, CaptionLocaleGraphqlResponse } from '../types';
-import { GET_CAPTION_ACTIVE_LOCALES, GET_CURRENT_CAPTION_LOCALE } from '../queries';
+import { CaptionActiveLocaleGraphqlResponse, SetSpeechLocaleMutation, CaptionLocaleGraphqlResponse } from '../types';
+import { GET_CAPTION_ACTIVE_LOCALES, GET_CURRENT_CAPTION_LOCALE, SET_SPEECH_LOCALE } from '../queries';
 
 import {
   getLocaleName, isGladia, mostSimilarLanguage, isWebSpeech,
@@ -36,7 +36,7 @@ import {
   FONT_OPTIONS,
   OUTLINE_STYLE_OPTIONS,
 } from '../../constants';
-import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../../index';
+import { pluginLogger } from '../../index';
 import { useLiveTranscriptionStore } from '../../context';
 import { useEnabledLocales, useSpeechProvider } from '../../context/settings/context';
 import TranscriptionVisualizer from '../transcription-visualizer/component';
@@ -239,27 +239,24 @@ export function StartedLiveTranscription({
     setAccordionTick((n) => n + 1);
   }, [fontSettings.showUserName, fontSettings.outlineStyle]);
 
-  const currentUser = pluginApi.useCurrentUser!();
-  const { data: currentUserData, loading: currentUserLoading } = currentUser || {};
-  const isMod = !currentUserLoading && currentUserData && currentUserData.role === 'MODERATOR';
-
-  const {
-    pushEntry: dataChannelPushEntry,
-  } = pluginApi.useDataChannel!<DataChannelResponse>(
-    LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME,
-    DataChannelTypes.LATEST_ITEM,
-  );
+  const [setSpeechLocale] = pluginApi.useCustomMutation!<
+    SetSpeechLocaleMutation>(SET_SPEECH_LOCALE);
 
   const handleChangeSpokenLocale = useCallback((e: SelectChangeEvent<unknown>) => {
     const newLocale = e.target.value as string;
     setSpokenLocale(newLocale);
-    dataChannelPushEntry({ state: 'started', locale: newLocale });
+    // Only the initial "start" broadcasts the locale to everyone (see
+    // LiveTranscriptionPanel.handleStartTranscription). Once transcription is
+    // running, each user's spoken locale is their own setting and must stay
+    // local, otherwise it forces a locale change (and a jarring panel
+    // refresh) on every other participant.
+    setSpeechLocale({ variables: { locale: newLocale, provider } });
     // 'auto' is only meaningful for the spoken (input) locale, not the view
     // (output) locale, so don't propagate it.
     if (!viewLocaleManuallySet && newLocale !== 'auto') {
       setViewLocale(newLocale);
     }
-  }, [dataChannelPushEntry, viewLocaleManuallySet, setSpokenLocale, setViewLocale]);
+  }, [setSpeechLocale, provider, viewLocaleManuallySet, setSpokenLocale, setViewLocale]);
 
   // Tracks the value of the locale being viewed.
   const { data: currentCaptionLocaleData } = pluginApi.useCustomSubscription!<
@@ -338,27 +335,25 @@ export function StartedLiveTranscription({
 
       <Styled.HeaderToolbar>
         <Styled.LocaleSelectorRow>
-          {isMod && (
-            <BBBSelect
-              id="spoken-locale-select"
-              value={spokenLocale}
-              title={intl.formatMessage(intlMessages.spokenLocaleSelectorLabel)}
-              onChange={handleChangeSpokenLocale}
-              fullWidth
-            >
-              {isGladia(provider)
-                && (
-                <MenuItem key="auto" value="auto">
-                  {intl.formatMessage(intlMessages.autoDetectLocale)}
-                </MenuItem>
-                )}
-              {enabledLocales.map((l) => (
-                <MenuItem key={l} value={l}>
-                  {getLocaleName(l)}
-                </MenuItem>
-              ))}
-            </BBBSelect>
-          )}
+          <BBBSelect
+            id="spoken-locale-select"
+            value={spokenLocale}
+            title={intl.formatMessage(intlMessages.spokenLocaleSelectorLabel)}
+            onChange={handleChangeSpokenLocale}
+            fullWidth
+          >
+            {isGladia(provider)
+              && (
+              <MenuItem key="auto" value="auto">
+                {intl.formatMessage(intlMessages.autoDetectLocale)}
+              </MenuItem>
+              )}
+            {enabledLocales.map((l) => (
+              <MenuItem key={l} value={l}>
+                {getLocaleName(l)}
+              </MenuItem>
+            ))}
+          </BBBSelect>
           {viewLocaleSelectorVisible && (
             <BBBSelect
               id="view-locale-select"

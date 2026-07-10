@@ -158,6 +158,12 @@ export function LiveTranscriptionPlugin(
       });
     }
     if (sidekickPanel) pluginApi.setGenericContentItems([sidekickPanel]);
+    // activeLocale is intentionally excluded: it only needs to seed the
+    // initial locale of a freshly (re)created panel. Once transcription has
+    // started, each user manages their own spoken/view locale locally, so
+    // activeLocale keeps changing on every render but must not tear down and
+    // recreate everyone's panel (that full remount is what caused the
+    // "flash" on every locale switch).
   }, [
     currentLocale,
     localeMessages,
@@ -165,7 +171,6 @@ export function LiveTranscriptionPlugin(
     transcriptionStarted,
     isMod,
     provider,
-    activeLocale,
   ]);
 
   return null;

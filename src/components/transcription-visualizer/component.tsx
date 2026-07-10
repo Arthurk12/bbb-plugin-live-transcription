@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  ReactNode, useCallback, useEffect, useMemo, useRef, useState,
+  ReactNode, useCallback, useEffect, useMemo, useRef, useState, memo,
 } from 'react';
 import { IntlShape, defineMessages } from 'react-intl';
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
@@ -33,7 +33,7 @@ interface TranscriptionVisualizerProps {
   onLiveCaptionsChange: (entries: FloatingCaptionsEntry[]) => void;
 }
 
-export function TranscriptionVisualizer({
+function TranscriptionVisualizer({
   pluginApi,
   viewLocale,
   loadSince,
@@ -164,3 +164,5 @@ export function TranscriptionVisualizer({
     </>
   );
 }
+
+export default memo(TranscriptionVisualizer);
