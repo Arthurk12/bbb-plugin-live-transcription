@@ -180,7 +180,11 @@ export function LiveTranscriptionPanel({
     return (
       <StartedLiveTranscription
         pluginApi={pluginApi}
-        locale={selectedLocale}
+        // 'auto' is only meaningful for the input (spoken) locale, not the
+        // base locale used to seed view options — fall back to the already
+        // resolved initialLocale, same as the attendee path in
+        // LiveTranscriptionPlugin.
+        locale={selectedLocale !== 'auto' ? selectedLocale : initialLocale}
         intl={intl}
       />
     );
