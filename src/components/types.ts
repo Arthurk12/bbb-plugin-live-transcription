@@ -8,6 +8,7 @@ export interface LiveTranscriptionPluginProps {
 export interface CaptionLocaleGraphqlResponse {
   user_current: {
     captionLocale: string;
+    speechLocale: string;
   }[];
 }
 
