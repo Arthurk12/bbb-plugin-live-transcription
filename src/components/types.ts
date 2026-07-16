@@ -39,6 +39,7 @@ export interface CaptionGraphqlResult {
     captionText: string;
     captionId: string;
     createdAt: string;
+    userId: string;
   }[];
 }
 
@@ -53,6 +54,7 @@ export interface LiveCaptionGraphqlResult {
     captionText: string;
     captionId: string;
     createdAt: string;
+    userId: string;
   }[];
 }
 

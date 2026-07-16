@@ -24,6 +24,7 @@ const CAPTION_HISTORY_FIELDS = `
   captionText
   captionId
   createdAt
+  userId
 `;
 
 export const GET_CAPTIONS_SINCE = `

@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import {
   colorWhite,
   colorNeutral4,
+  space1,
   space2,
   space4,
   space6,
@@ -30,7 +31,6 @@ export const ScrollArea = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column-reverse;
-  gap: ${space4};
   background: linear-gradient(${colorWhite} 30%, rgba(255,255,255,0)),
     linear-gradient(rgba(255,255,255,0), ${colorWhite} 70%) 0 100%,
     /* Shadows */
@@ -68,20 +68,22 @@ export const ScrollArea = styled.div`
   &::-webkit-scrollbar-corner { background: 0 0; }
 `;
 
-export const CaptionRow = styled.div`
+export const CaptionRow = styled.div<{ $continuation?: boolean }>`
   display: flex;
   flex-direction: row;
   gap: ${space2};
+  margin-top: ${({ $continuation }) => ($continuation ? space1 : space4)};
 `;
 
 export const CaptionContent = styled.div`
 `;
 
-export const Timestamp = styled.span`
+export const Timestamp = styled.span<{ $hidden?: boolean }>`
   font-size: ${fontSizeSmMd};
   color: ${colorTextDefault};
   align-self: flex-start;
   flex-shrink: 0;
+  visibility: ${({ $hidden }) => ($hidden ? 'hidden' : 'visible')};
 `;
 
 export const ScrollButton = styled.div`
