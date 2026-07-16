@@ -63,6 +63,7 @@ export const GET_CURRENT_CAPTION_LOCALE = `
   subscription userCurrentSubscription {
     user_current {
       captionLocale
+      speechLocale
     }
   }
 `;

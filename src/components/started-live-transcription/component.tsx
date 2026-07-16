@@ -269,6 +269,16 @@ export function StartedLiveTranscription({
 
   const currentCaptionLocale = currentCaptionLocaleData?.user_current[0]?.captionLocale ?? '';
 
+  // userSetSpeechLocale is also called outside this panel (e.g. BBB's native
+  // Audio Settings > Captions selector), so the spoken locale must be read
+  // back from the server too - otherwise changes made there never reach the
+  // plugin, which only ever pushed its own changes one-way via the mutation.
+  const serverSpeechLocale = currentCaptionLocaleData?.user_current[0]?.speechLocale ?? '';
+  useEffect(() => {
+    if (!serverSpeechLocale || serverSpeechLocale === spokenLocale) return;
+    setSpokenLocale(serverSpeechLocale);
+  }, [serverSpeechLocale, spokenLocale, setSpokenLocale]);
+
   const setDisplayCaptionsLocale = useCallback((language: string) => {
     // Check whether the language string is equal to one of the values
     // in CaptionsLanguageEnum
