@@ -124,6 +124,20 @@ function TranscriptionVisualizer({
 
   const nothingToShow = (captions?.caption_history?.length ?? 0) === 0;
 
+  // Entries are ordered newest-first. A row is the start of its group (and
+  // shows the name/timestamp header) when the next (chronologically older)
+  // entry belongs to a different user or a different displayed minute -
+  // otherwise it's a continuation of the same speaking turn.
+  const groupHeaders = useMemo(() => {
+    const entries = captions?.caption_history ?? [];
+    return entries.map((c, i) => {
+      const olderEntry = entries[i + 1];
+      if (!olderEntry) return true;
+      return olderEntry.userId !== c.userId
+        || intl.formatTime(olderEntry.createdAt) !== intl.formatTime(c.createdAt);
+    });
+  }, [captions, intl]);
+
   return (
     <>
       <Styled.SettingsDivider />
@@ -134,19 +148,22 @@ function TranscriptionVisualizer({
           <>
             <Styled.ScrollArea ref={containerRef} onScroll={handleScroll}>
               <Styled.ScrollAreaSpacer />
-              {captions?.caption_history?.map((c) => (
-                <Styled.CaptionRow key={c.captionId}>
-                  <Styled.Timestamp>
-                    <BBBTypography variant="text2">
-                      {intl.formatTime(c.createdAt)}
-                    </BBBTypography>
-                  </Styled.Timestamp>
-                  <Styled.CaptionContent>
-                    <Username intl={intl} user={c.user} />
-                    <BBBTypography>{c.captionText}</BBBTypography>
-                  </Styled.CaptionContent>
-                </Styled.CaptionRow>
-              ))}
+              {captions?.caption_history?.map((c, i) => {
+                const showHeader = groupHeaders[i];
+                return (
+                  <Styled.CaptionRow key={c.captionId} $continuation={!showHeader}>
+                    <Styled.Timestamp $hidden={!showHeader}>
+                      <BBBTypography variant="text2">
+                        {intl.formatTime(c.createdAt)}
+                      </BBBTypography>
+                    </Styled.Timestamp>
+                    <Styled.CaptionContent>
+                      {showHeader && <Username intl={intl} user={c.user} />}
+                      <BBBTypography>{c.captionText}</BBBTypography>
+                    </Styled.CaptionContent>
+                  </Styled.CaptionRow>
+                );
+              })}
             </Styled.ScrollArea>
             {!isAtBottom && (
               <Styled.ScrollButton>
