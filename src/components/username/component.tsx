@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ReactNode } from 'react';
 import { IntlShape, defineMessages } from 'react-intl';
-import { BBBTypography } from '@mconf/bbb-ui-components-react';
+import { BBBTypography } from '@bigbluebutton/bbb-ui-components-react';
 
 interface UsernameProps {
   intl: IntlShape;

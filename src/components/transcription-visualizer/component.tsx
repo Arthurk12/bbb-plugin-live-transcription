@@ -6,7 +6,7 @@ import { IntlShape, defineMessages } from 'react-intl';
 import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import {
   BBBTypography, BBButton,
-} from '@mconf/bbb-ui-components-react';
+} from '@bigbluebutton/bbb-ui-components-react';
 import { CaptionGraphqlResult, LiveCaptionGraphqlResult } from '../types';
 import { GET_CAPTIONS_SINCE, GET_LIVE_CAPTIONS } from '../queries';
 import { Username } from '../username/component';

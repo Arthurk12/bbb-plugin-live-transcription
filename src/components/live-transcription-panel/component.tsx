@@ -11,7 +11,7 @@ import {
   BBButton,
   BBBTypography,
   BBBHint,
-} from '@mconf/bbb-ui-components-react';
+} from '@bigbluebutton/bbb-ui-components-react';
 import { DataChannelTypes, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import * as Styled from './styles';
 import { DataChannelResponse } from '../types';

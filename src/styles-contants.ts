@@ -6,7 +6,7 @@ import {
   colorTextDefault,
   colorWhite,
   colorHoverDark,
-} from '@mconf/bbb-ui-components-react';
+} from '@bigbluebutton/bbb-ui-components-react';
 
 export const smallOnly = 'only screen and (max-width: 40em)';
 export const fontSizeSmMd = '0.85rem'; // aprox 12px

@@ -15,7 +15,7 @@ import { MenuItem } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import {
   BBBTypography, BBButton, BBBToggle, BBBAccordion, BBBSelect, BBBHint,
-} from '@mconf/bbb-ui-components-react';
+} from '@bigbluebutton/bbb-ui-components-react';
 import * as Styled from './styles';
 import { CaptionActiveLocaleGraphqlResponse, SetSpeechLocaleMutation, CaptionLocaleGraphqlResponse } from '../types';
 import { GET_CAPTION_ACTIVE_LOCALES, GET_CURRENT_CAPTION_LOCALE, SET_SPEECH_LOCALE } from '../queries';
