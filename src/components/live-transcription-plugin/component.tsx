@@ -137,7 +137,7 @@ export function LiveTranscriptionPlugin(
           svgContent: <IconSVG />,
         },
         section: intl.formatMessage(intlMessages.sidekickSectionName),
-        open: true,
+        open: false,
         contentFunction: (element: HTMLElement) => {
           const root = ReactDOM.createRoot(element);
           root.render(
