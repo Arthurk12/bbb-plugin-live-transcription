@@ -19,7 +19,7 @@ import { StartedLiveTranscription } from '../started-live-transcription/componen
 import useEnableTranscription from '../../hooks/useEnableTranscription';
 import { useWebspeechSupportBroadcast } from '../../hooks/useWebspeechSupportBroadcast';
 import { pluginLogger } from '../..';
-import { isGladia, mostSimilarLanguage } from '../../service';
+import { isTranslationEnabled, mostSimilarLanguage } from '../../service';
 import { IconSVG } from '../icon/component';
 
 const intlMessages = defineMessages({
@@ -96,7 +96,7 @@ export function LiveTranscriptionPlugin(
       sidekickPanel = new GenericContentSidekickArea({
         id: `live-transcription-${uuid}`,
         name: intl.formatMessage(
-          isGladia(provider)
+          isTranslationEnabled(provider)
             ? intlMessages.sidekickButtonTitleTranslation
             : intlMessages.sidekickButtonTitle,
         ),
@@ -129,7 +129,7 @@ export function LiveTranscriptionPlugin(
       sidekickPanel = new GenericContentSidekickArea({
         id: `live-transcription-${uuid}`,
         name: intl.formatMessage(
-          isGladia(provider)
+          isTranslationEnabled(provider)
             ? intlMessages.sidekickButtonTitleTranslation
             : intlMessages.sidekickButtonTitle,
         ),
