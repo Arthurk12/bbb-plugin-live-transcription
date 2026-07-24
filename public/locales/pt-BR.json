@@ -12,6 +12,7 @@
   "sidekick.panel.resumeButton.label": "Retomar",
   "sidekick.panel.stopButton.label": "Encerrar",
   "sidekick.panel.username.presenterLabel": "Apresentador",
+  "sidekick.panel.username.moderatorLabel": "Moderador",
   "sidekick.panel.emptyState.title": "Nada para transcrever",
   "sidekick.panel.emptyState.subtitle": "Aguardando fala dos participantes...",
   "sidekick.panel.emptyState.iconAlt": "Ícone de fala para texto",

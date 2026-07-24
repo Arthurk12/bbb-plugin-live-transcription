@@ -12,6 +12,7 @@
   "sidekick.panel.resumeButton.label": "Resume",
   "sidekick.panel.stopButton.label": "End",
   "sidekick.panel.username.presenterLabel": "Presenter",
+  "sidekick.panel.username.moderatorLabel": "Moderator",
   "sidekick.panel.emptyState.title": "Nothing to transcribe",
   "sidekick.panel.emptyState.subtitle": "Waiting for participants to speak...",
   "sidekick.panel.emptyState.iconAlt": "Speech to text Icon",
