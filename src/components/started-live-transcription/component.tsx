@@ -28,6 +28,8 @@ import { useIsModerator } from '../../hooks/useIsModerator';
 import {
   FloatingCaptionsWindow,
   FloatingCaptionsEntry,
+  FloatingCaptionsFontSettings,
+  FloatingCaptionsSplitSettings,
 } from '../floating-captions/component';
 import {
   DEFAULT_FONT_SETTINGS,
@@ -114,6 +116,10 @@ export function StartedLiveTranscription({
   const isMod = useIsModerator(pluginApi);
   const [floatingOpen, setFloatingOpen] = useState(false);
   const [activeFloatingEntries, setActiveFloatingEntries] = useState<FloatingCaptionsEntry[]>([]);
+  const [fontSettings, setFontSettings] = useState<
+    FloatingCaptionsFontSettings>(DEFAULT_FONT_SETTINGS);
+  const [splitSettings, setSplitSettings] = useState<
+    FloatingCaptionsSplitSettings>(DEFAULT_SPLIT_SETTINGS);
   // Locale selections are mirrored into the (persistent) store so they survive
   // the panel being closed and reopened, which fully remounts this component.
   const [viewLocale, setViewLocaleState] = useState<string>(() => persistedViewLocale
@@ -344,8 +350,11 @@ export function StartedLiveTranscription({
         <FloatingCaptionsWindow
           captions={activeFloatingEntries}
           locale={locale}
-          fontSettings={DEFAULT_FONT_SETTINGS}
-          splitSettings={DEFAULT_SPLIT_SETTINGS}
+          intl={intl}
+          fontSettings={fontSettings}
+          onFontSettingsChange={setFontSettings}
+          splitSettings={splitSettings}
+          onSplitSettingsChange={setSplitSettings}
           onClose={() => setFloatingOpen(false)}
         />
       )}
