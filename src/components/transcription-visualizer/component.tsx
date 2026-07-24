@@ -11,6 +11,7 @@ import { CaptionGraphqlResult, LiveCaptionGraphqlResult } from '../types';
 import { GET_CAPTIONS_SINCE, GET_LIVE_CAPTIONS } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
+import { IconSVG } from '../icon/component';
 import { FloatingCaptionsEntry } from '../floating-captions/component';
 import { pluginLogger } from '../../index';
 import * as Styled from '../started-live-transcription/styles';
@@ -20,6 +21,11 @@ const intlMessages = defineMessages({
     id: 'sidekick.panel.scrollButton.label',
     description: 'Label for the "Scroll to latest" button',
     defaultMessage: 'Scroll to latest',
+  },
+  liveIndicatorLabel: {
+    id: 'sidekick.panel.liveIndicator.label',
+    description: 'Label for the indicator that shows live transcription is active',
+    defaultMessage: 'Transcribing',
   },
 });
 
@@ -144,6 +150,10 @@ function TranscriptionVisualizer({
         <EmptyState intl={intl} />
       ) : (
         <>
+          <Styled.LiveIndicator
+            label={intl.formatMessage(intlMessages.liveIndicatorLabel)}
+            icon={<IconSVG width={16} height={16} />}
+          />
           <Styled.ScrollArea ref={containerRef} onScroll={handleScroll}>
             <Styled.ScrollAreaSpacer />
             {captions?.caption_history?.map((c, i) => {

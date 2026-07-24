@@ -7,6 +7,7 @@
   "sidekick.panel.floatButton.open": "Open floating window",
   "sidekick.panel.floatButton.close": "Close floating window",
   "sidekick.panel.scrollButton.label": "Scroll to latest",
+  "sidekick.panel.liveIndicator.label": "Transcribing",
   "sidekick.panel.username.presenterLabel": "Presenter",
   "sidekick.panel.emptyState.title": "Nothing to transcribe",
   "sidekick.panel.emptyState.subtitle": "Waiting for participants to speak...",

@@ -1,12 +1,15 @@
 import styled from 'styled-components';
+import { BBBHint } from '@bigbluebutton/bbb-ui-components-react';
 import {
   colorWhite,
   space1,
   space2,
+  space3,
   space4,
   space6,
   fontSizeSmMd,
   colorTextDefault,
+  colorPrimary,
 } from '../../styles-contants';
 
 export const Container = styled.div`
@@ -122,6 +125,17 @@ export const ScrollAreaWrapper = styled.div`
   margin: ${space6};
   display: flex;
   flex-direction: column;
+`;
+
+export const LiveIndicator = styled(BBBHint)`
+  flex-shrink: 0;
+  margin-bottom: ${space2};
+  padding: ${space2} ${space3};
+  gap: ${space2};
+
+  label {
+    color: ${colorPrimary};
+  }
 `;
 
 export const LocalePanel = styled.div<{ $active: boolean }>`

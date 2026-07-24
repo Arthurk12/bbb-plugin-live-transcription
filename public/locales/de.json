@@ -7,6 +7,7 @@
   "sidekick.panel.floatButton.open": "Schwebendes Fenster öffnen",
   "sidekick.panel.floatButton.close": "Schwebendes Fenster schließen",
   "sidekick.panel.scrollButton.label": "Zum neuesten Beitrag scrollen",
+  "sidekick.panel.liveIndicator.label": "Transkribiert",
   "sidekick.panel.username.presenterLabel": "Präsentator",
   "sidekick.panel.emptyState.title": "Nichts zu transkribieren",
   "sidekick.panel.emptyState.subtitle": "Warten auf Wortmeldungen der Teilnehmer...",

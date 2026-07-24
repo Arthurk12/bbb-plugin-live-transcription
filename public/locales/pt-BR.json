@@ -7,6 +7,7 @@
   "sidekick.panel.floatButton.open": "Destacar",
   "sidekick.panel.floatButton.close": "Recolher",
   "sidekick.panel.scrollButton.label": "Rolar até o mais recente",
+  "sidekick.panel.liveIndicator.label": "Transcrevendo",
   "sidekick.panel.username.presenterLabel": "Apresentador",
   "sidekick.panel.emptyState.title": "Nada para transcrever",
   "sidekick.panel.emptyState.subtitle": "Aguardando fala dos participantes...",
