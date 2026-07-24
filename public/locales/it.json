@@ -8,6 +8,9 @@
   "sidekick.panel.floatButton.close": "Chiudi finestra flottante",
   "sidekick.panel.scrollButton.label": "Scorri fino al più recente",
   "sidekick.panel.liveIndicator.label": "Trascrizione in corso",
+  "sidekick.panel.pauseButton.label": "Pausa",
+  "sidekick.panel.resumeButton.label": "Riprendi",
+  "sidekick.panel.stopButton.label": "Termina",
   "sidekick.panel.username.presenterLabel": "Presentatore",
   "sidekick.panel.emptyState.title": "Nulla da trascrivere",
   "sidekick.panel.emptyState.subtitle": "In attesa che i partecipanti parlino...",
@@ -27,6 +30,7 @@
   "sidekick.panel.viewLocaleSelector.label": "Lingua di visualizzazione",
   "live_transcription.notification.enabled": "La trascrizione in tempo reale è stata abilitata per la stanza. Accedi al pannello di trascrizione nella galleria delle app.",
   "live_transcription.notification.enabled.unsupported": "La trascrizione in tempo reale è stata abilitata per la stanza. Tuttavia, il tuo browser non supporta l'API Web Speech e la tua voce non sarà trascritta.",
+  "live_transcription.notification.paused": "La trascrizione in tempo reale è stata sospesa per la stanza.",
   "live_transcription.modal.unsupportedUsers.title": "Partecipanti senza supporto Web Speech",
   "live_transcription.modal.unsupportedUsers.count": "{count, plural, one {# partecipante} other {# partecipanti}} non dispone del supporto API Web Speech",
   "live_transcription.banner.unsupported": "Web Speech API non supportato nel tuo browser. La tua voce non sarà trascritta."

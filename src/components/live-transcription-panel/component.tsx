@@ -26,7 +26,9 @@ import {
   usePrivacyPolicyUrl,
   useSpeechProvider,
 } from '../../context/settings/context';
-import { LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, pluginLogger } from '../../index';
+import {
+  LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, TRANSCRIPTION_SESSION_STATE, pluginLogger,
+} from '../../index';
 
 function IllustrationSVG(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -157,7 +159,7 @@ export function LiveTranscriptionPanel({
       logCode: 'plg_started',
     }, `Plugin started: ${pluginApi.pluginName}`);
     setStarted(true);
-    dataChannelPushEntry({ state: 'started', locale: selectedLocale });
+    dataChannelPushEntry({ state: TRANSCRIPTION_SESSION_STATE.STARTED, locale: selectedLocale });
   }, [selectedLocale, dataChannelPushEntry, provider]);
 
   if (started) {

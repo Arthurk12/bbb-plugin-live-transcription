@@ -3,17 +3,25 @@ import {
   ReactNode, useCallback, useEffect, useMemo, useRef, useState, memo,
 } from 'react';
 import { IntlShape, defineMessages } from 'react-intl';
-import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
+import { PluginApi, DataChannelTypes } from 'bigbluebutton-html-plugin-sdk';
+import {
+  Pause as MDPauseIcon,
+  PlayArrow as MDPlayArrowIcon,
+  Stop as MDStopIcon,
+} from '@mui/icons-material';
 import {
   BBBTypography, BBButton,
 } from '@bigbluebutton/bbb-ui-components-react';
-import { CaptionGraphqlResult, LiveCaptionGraphqlResult } from '../types';
+import { CaptionGraphqlResult, DataChannelResponse, LiveCaptionGraphqlResult } from '../types';
 import { GET_CAPTIONS_SINCE, GET_LIVE_CAPTIONS } from '../queries';
 import { Username } from '../username/component';
 import { EmptyState } from '../empty-state/component';
 import { IconSVG } from '../icon/component';
 import { FloatingCaptionsEntry } from '../floating-captions/component';
-import { pluginLogger } from '../../index';
+import {
+  LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME, TRANSCRIPTION_SESSION_STATE, pluginLogger,
+} from '../../index';
+import { useIsModerator } from '../../hooks/useIsModerator';
 import * as Styled from '../started-live-transcription/styles';
 
 const intlMessages = defineMessages({
@@ -26,6 +34,21 @@ const intlMessages = defineMessages({
     id: 'sidekick.panel.liveIndicator.label',
     description: 'Label for the indicator that shows live transcription is active',
     defaultMessage: 'Transcribing',
+  },
+  pauseButtonLabel: {
+    id: 'sidekick.panel.pauseButton.label',
+    description: 'Label for the button that pauses transcription for everyone',
+    defaultMessage: 'Pause',
+  },
+  resumeButtonLabel: {
+    id: 'sidekick.panel.resumeButton.label',
+    description: 'Label for the button that resumes a paused transcription for everyone',
+    defaultMessage: 'Resume',
+  },
+  stopButtonLabel: {
+    id: 'sidekick.panel.stopButton.label',
+    description: 'Label for the button that ends transcription for everyone',
+    defaultMessage: 'End',
   },
 });
 
@@ -50,6 +73,32 @@ function TranscriptionVisualizer({
 }: TranscriptionVisualizerProps): ReactNode {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const isMod = useIsModerator(pluginApi);
+
+  const {
+    data: sessionData,
+    pushEntry: pushSessionState,
+  } = pluginApi.useDataChannel!<DataChannelResponse>(
+    LIVE_TRANSCRIPTION_DATA_CHANNEL_NAME,
+    DataChannelTypes.LATEST_ITEM,
+  );
+  const sessionEntry = sessionData?.data?.[0]?.payloadJson;
+  const isPaused = sessionEntry?.state === TRANSCRIPTION_SESSION_STATE.PAUSED;
+
+  const handleTogglePause = useCallback(() => {
+    if (!sessionEntry?.locale) return;
+    const nextState = isPaused
+      ? TRANSCRIPTION_SESSION_STATE.STARTED
+      : TRANSCRIPTION_SESSION_STATE.PAUSED;
+    pluginLogger.info('Toggling transcription pause state for everyone', { logCode: 'live_transcription_toggle_pause', extraInfo: { nextState } });
+    pushSessionState({ state: nextState, locale: sessionEntry.locale });
+  }, [isPaused, sessionEntry, pushSessionState]);
+
+  const handleStop = useCallback(() => {
+    if (!sessionEntry?.locale) return;
+    pluginLogger.info('Stopping transcription for everyone', { logCode: 'live_transcription_stop' });
+    pushSessionState({ state: TRANSCRIPTION_SESSION_STATE.STOPPED, locale: sessionEntry.locale });
+  }, [sessionEntry, pushSessionState]);
 
   const {
     data: captions,
@@ -150,10 +199,12 @@ function TranscriptionVisualizer({
         <EmptyState intl={intl} />
       ) : (
         <>
-          <Styled.LiveIndicator
-            label={intl.formatMessage(intlMessages.liveIndicatorLabel)}
-            icon={<IconSVG width={16} height={16} />}
-          />
+          {!isPaused && (
+            <Styled.LiveIndicator
+              label={intl.formatMessage(intlMessages.liveIndicatorLabel)}
+              icon={<IconSVG width={16} height={16} />}
+            />
+          )}
           <Styled.ScrollArea ref={containerRef} onScroll={handleScroll}>
             <Styled.ScrollAreaSpacer />
             {captions?.caption_history?.map((c, i) => {
@@ -184,6 +235,27 @@ function TranscriptionVisualizer({
             </Styled.ScrollButton>
           )}
         </>
+      )}
+      {isMod && (
+        <Styled.SessionControlsRow>
+          <BBButton
+            label={intl.formatMessage(isPaused
+              ? intlMessages.resumeButtonLabel : intlMessages.pauseButtonLabel)}
+            iconStart={isPaused
+              ? <MDPlayArrowIcon style={{ fontSize: '0.85rem' }} />
+              : <MDPauseIcon style={{ fontSize: '0.85rem' }} />}
+            variant="secondary"
+            color="neutral"
+            onClick={handleTogglePause}
+          />
+          <BBButton
+            label={intl.formatMessage(intlMessages.stopButtonLabel)}
+            iconStart={<MDStopIcon style={{ fontSize: '0.85rem' }} />}
+            variant="primary"
+            color="danger"
+            onClick={handleStop}
+          />
+        </Styled.SessionControlsRow>
       )}
     </Styled.ScrollAreaWrapper>
   );

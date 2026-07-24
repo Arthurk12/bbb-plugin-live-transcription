@@ -165,3 +165,15 @@ export const SettingsPanel = styled.div`
   max-height: 55vh;
   overflow-y: auto;
 `;
+
+export const SessionControlsRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  gap: ${space2};
+  padding: ${space1};
+
+  & > * {
+    flex: 1;
+  }
+`;

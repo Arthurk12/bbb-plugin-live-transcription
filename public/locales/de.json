@@ -8,6 +8,9 @@
   "sidekick.panel.floatButton.close": "Schwebendes Fenster schließen",
   "sidekick.panel.scrollButton.label": "Zum neuesten Beitrag scrollen",
   "sidekick.panel.liveIndicator.label": "Transkribiert",
+  "sidekick.panel.pauseButton.label": "Pausieren",
+  "sidekick.panel.resumeButton.label": "Fortsetzen",
+  "sidekick.panel.stopButton.label": "Beenden",
   "sidekick.panel.username.presenterLabel": "Präsentator",
   "sidekick.panel.emptyState.title": "Nichts zu transkribieren",
   "sidekick.panel.emptyState.subtitle": "Warten auf Wortmeldungen der Teilnehmer...",
@@ -27,6 +30,7 @@
   "sidekick.panel.viewLocaleSelector.label": "Anzeigesprache",
   "live_transcription.notification.enabled": "Die Echtzeit-Transkription wurde für den Raum aktiviert. Öffnen Sie das Transkriptions-Panel in der App-Galerie.",
   "live_transcription.notification.enabled.unsupported": "Die Echtzeit-Transkription wurde für den Raum aktiviert. Ihr Browser unterstützt jedoch die Web Speech API nicht und Ihre Stimme wird nicht transkribiert.",
+  "live_transcription.notification.paused": "Die Echtzeit-Transkription wurde für den Raum pausiert.",
   "live_transcription.modal.unsupportedUsers.title": "Teilnehmer ohne Web Speech Support",
   "live_transcription.modal.unsupportedUsers.count": "{count, plural, one {# Teilnehmer} other {# Teilnehmer}} verfügt nicht über Web Speech API-Unterstützung",
   "live_transcription.banner.unsupported": "Web Speech API wird in Ihrem Browser nicht unterstützt. Ihre Stimme wird nicht transkribiert."
