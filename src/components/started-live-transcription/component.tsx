@@ -9,6 +9,7 @@ import {
   ContentCopy as MDContentCopyIcon,
   OpenInNew as MDOpenInNewIcon,
   OpenInNewOff as MdOpenInNewOffIcon,
+  CheckCircleOutline as MDCheckCircleOutlineIcon,
 } from '@mui/icons-material';
 import { MenuItem } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
@@ -71,6 +72,16 @@ const intlMessages = defineMessages({
     id: 'sidekick.panel.copyButton.label',
     description: 'Label for the button that copies the caption history to clipboard',
     defaultMessage: 'Copy',
+  },
+  clearedFeedbackLabel: {
+    id: 'sidekick.panel.clearButton.feedback',
+    description: 'Feedback shown briefly on the clear button after it is clicked',
+    defaultMessage: 'Cleared',
+  },
+  copiedFeedbackLabel: {
+    id: 'sidekick.panel.copyButton.feedback',
+    description: 'Feedback shown briefly on the copy button after it is clicked',
+    defaultMessage: 'Copied',
   },
   floatButtonOpen: {
     id: 'sidekick.panel.floatButton.open',
@@ -257,6 +268,13 @@ export function StartedLiveTranscription({
               onClick={handleClearCaptions}
               size="sm"
               variant="tertiary"
+              showFeedback
+              feedbackContent={(
+                <>
+                  <MDCheckCircleOutlineIcon style={{ fontSize: '0.85rem' }} />
+                  {intl.formatMessage(intlMessages.clearedFeedbackLabel)}
+                </>
+              )}
             />
             <BBButton
               label={intl.formatMessage(intlMessages.copyButtonLabel)}
@@ -264,6 +282,13 @@ export function StartedLiveTranscription({
               size="sm"
               variant="tertiary"
               onClick={handleCopyCaptions}
+              showFeedback
+              feedbackContent={(
+                <>
+                  <MDCheckCircleOutlineIcon style={{ fontSize: '0.85rem' }} />
+                  {intl.formatMessage(intlMessages.copiedFeedbackLabel)}
+                </>
+              )}
             />
             <BBButton
               label={intl.formatMessage(floatingOpen
